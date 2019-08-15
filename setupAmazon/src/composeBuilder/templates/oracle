@@ -1,0 +1,15 @@
+
+
+  oracle:
+    container_name: oracle
+    image: ${ORACLE}
+    ports:
+       - "1521:1521"
+       - "5500:5500"
+    environment:
+       - ORACLE_SID=ORCLCBD
+       - VIZIX_USER=C##VIZIX
+       - ORACLE_PWD=7GHnREKP+Ns14
+       - ORACLE_CHARACTERSET=AL32UTF8
+    volumes:
+       - ${VIZIX_DATA_PATH}/oracle:/opt/oracle/oradata

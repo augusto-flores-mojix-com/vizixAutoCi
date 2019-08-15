@@ -1,0 +1,18 @@
+
+
+
+  epciseventgenerator:
+    hostname: epciseventgenerator
+    container_name: epciseventgenerator
+    mem_reservation: 1g
+    image: ${EVENTGENERATOR}
+    environment:
+      - MEM_XMS=900m
+      - MEM_XMX=900m
+      - KAFKA_HOST=${KAFKA_ADDRESS}:9092
+      - KAFKA_MAX_POLL_RECORDS=500
+      - KAFKA_MAX_POLL_INTERVAL_MS=5000
+      - VIZIX_SERVER_ADDRESS=http://${KAFKA_ADDRESS}
+      - VIZIX_SERVER_USERNAME=REDroot1
+      - VIZIX_SERVER_PASSWORD=Control123!
+      - EXTERNAL_TRANSFORMER_ADDRESS=http://externaltransformer:8080

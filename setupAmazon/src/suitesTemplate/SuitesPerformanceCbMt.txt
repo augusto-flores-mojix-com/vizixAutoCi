@@ -1,0 +1,1 @@
+BigDataVerification*-PwaitTimeSimulator=900*-PcleanThingAfteSimulator=false*-PminValue=10*-PmaxValue=20*-PincreaseAmoung=1*-PprobabilityChangeLocation=50*-PpercentageOlders=0*-PpercentageNews=100*-PnumberOfRounds=5*-PfrequencySimulation=50*-PnumberThingsSimulation=50*-PblinksPerSecond=5 basic bridgesMtPerformance

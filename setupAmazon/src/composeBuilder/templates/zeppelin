@@ -1,0 +1,15 @@
+
+
+  zeppelin:
+    image: apache/zeppelin:0.7.3
+    hostname: zeppelin
+    container_name: zeppelin
+    restart: always
+    ports:
+      - 9093:8080
+    environment:
+      ZEPPELIN_NOTEBOOK_DIR: '/notebook'
+      ZEPPELIN_LOG_DIR: '/logs'
+    volumes:
+      - ./logs:/logs
+      - ./notebook:/notebook

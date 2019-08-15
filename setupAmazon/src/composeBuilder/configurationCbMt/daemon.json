@@ -1,0 +1,21 @@
+{
+  "storage-driver": "overlay2",
+  "storage-opts": [
+    "overlay2.override_kernel_check=true"
+  ],
+  "debug": true,
+  "experimental": true,
+  "live-restore": false,
+  "disable-legacy-registry": true,
+  "userland-proxy": false,
+  "ipv6": false,
+  "no-new-privileges": true,
+  "dns": [
+    "8.8.8.8"
+  ],
+  "log-driver": "json-file",
+  "metrics-addr": "0.0.0.0:4999",
+  "log-opts": {
+    "max-size": "5g"
+  }
+}

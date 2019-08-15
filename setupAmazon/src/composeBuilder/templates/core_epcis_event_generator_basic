@@ -1,0 +1,267 @@
+version: "2.3"
+services:
+
+  logs:
+    image: ${LOGS}
+    restart: always
+    hostname: logs
+    container_name: logs
+    command: -h logio -n docker
+    read_only: true
+    mem_limit: 512m
+    depends_on:
+      - logio
+      - services
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  logio:
+    hostname: logio
+    restart: always
+    container_name: logio
+    image: ${LOGIO}
+    read_only: true
+    cpu_count: 1
+    mem_limit: 1g
+    ports:
+      - 28777:28777
+      - 28778:28778
+
+  ntpd:
+    hostname: ntpd
+    container_name: ntpd
+    image: ${NTPD}
+    command: ntpd -d -f /etc/ntp-client.conf
+    restart: always
+    read_only: true
+    cpu_count: 1
+    mem_limit: 20m
+    cap_add:
+      - SYS_NICE
+      - SYS_TIME
+    tmpfs:
+      - /var/run:rw,noexec,nosuid,size=1m
+      - /var/db:rw,noexec,nosuid,size=8m
+
+  ntpdserver:
+    hostname: ntpdserver
+    container_name: ntpdserver
+    image: ${NTPD}
+    restart: always
+    read_only: true
+    cpu_count: 1
+    mem_limit: 20m
+    cap_add:
+      - SYS_NICE
+      - SYS_TIME
+    tmpfs:
+      - /var/run:rw,noexec,nosuid,size=1m
+      - /var/db:rw,noexec,nosuid,size=8m
+    ports:
+      - 123:123/udp
+
+  mosquitto:
+    image: ${MQTT}
+    ports:
+      - 1883:1883
+    restart: always
+    hostname: mosquitto
+    container_name: mosquitto
+    cpu_count: 1
+    mem_reservation: 256m
+    mem_limit: 1g
+
+  mongo:
+    image: ${MONGO}
+    ports:
+      - 27017:27017
+    restart: always
+    hostname: mongo
+    container_name: mongo
+    mem_reservation: 1g
+    command: --storageEngine=wiredTiger --journal --slowms=5 --profile=2 --cpu --dbpath=/data/db --directoryperdb --wiredTigerCacheSizeGB=1 --wiredTigerDirectoryForIndexes --auth
+    volumes:
+      - ${VIZIX_DATA_PATH}/mongo:/data/db
+
+  hazelcast:
+    restart: always
+    hostname: hazelcast
+    container_name: hazelcast
+    cpu_count: 1
+    mem_reservation: 512m
+    mem_limit: 1g
+    image: ${HAZELCAST}
+    ports:
+            - "5701:5701"
+            - "5702:5702"
+            - "5703:5703"
+    environment:
+      MEM_XMS: 768m
+      MEM_XMX: 1g
+      VIZIX_HAZELCAST_PUBLIC_ADDRESS: hazelcast
+      VIZIX_HAZELCAST_MEMBER_LIST: hazelcast
+
+  ui:
+    image: ${UI}
+    restart: always
+    hostname: ui
+    container_name: ui
+    cpu_count: 1
+    mem_reservation: 768m
+    mem_limit: 1g
+    environment:
+      VIZIX_API_HOST: ${SERVICES_URL}
+      VIZIX_API_SECURE: 0
+
+  proxy:
+    image: ${PROXY}
+    ports:
+      - 80:80
+    restart: always
+    hostname: proxy
+    container_name: proxy
+    cpu_count: 1
+    mem_reservation: 1g
+    command: --conf /etc/Caddyfile -http2=false
+    volumes:
+      - ./Caddyfile:/etc/Caddyfile:ro
+
+  flow:
+    image: ${FLOW}
+    restart: always
+    hostname: flow
+    container_name: flow
+    volumes:
+      - ${VIZIX_DATA_PATH}/flows:/flows
+    cpu_count: 1
+    mem_reservation: 1g
+
+  zookeeper:
+    image: zookeeper:3.4.10
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    volumes:
+      - ${VIZIX_DATA_PATH}/zookeeper/data:/data
+      - ${VIZIX_DATA_PATH}/zookeeper/datalog:/datalog
+
+  kafka:
+    image: ${KAFKA}
+#    image: mojix/vizix-docker-kafka:develop
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_ADDRESS}:9092
+      KAFKA_ZOOKEEPER_CONNECT: ${KAFKA_ADDRESS}:2181
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_DEFAULT_PARTITION_NUMBER: 4
+      # KAFKA_LOG_CLEANER_ENABLE: ${KAFKA_LOG_CLEANER_ENABLE}
+      # KAFKA_LOG_CLEANER_MIN_CLEANABLE_RATIO: ${KAFKA_LOG_CLEANER_MIN_CLEANABLE_RATIO}
+    volumes:
+      - ${VIZIX_DATA_PATH}/kafka:/data
+
+  rpui:
+    image: ${BRIDGES}
+    hostname: rpui
+    container_name: rpui
+    ports:
+      - 8000:8000
+    environment:
+      VIZIX_BRIDGE_TYPE: rulesprocessor
+      VIZIX_KAFKA_CODE: RULESPROCESSOR
+      VIZIX_KAFKA_SERVERS: ${KAFKA_ADDRESS}:9092
+      VIZIX_KAFKA_CACHE_TICKLE_MODE: "MONGO_INJECTOR"
+      VIZIX_KAFKA_PROCESSING_MODE: "UI"
+      VIZIX_ESPER: 'yes'
+      VIZIX_MAX_ERRORS_ON_RULE_THRESHOLD: 0
+      VIZIX_EVENT_GENERATOR_ACTIVE: "true"
+
+  rpin:
+    image: ${BRIDGES}
+    hostname: rpin
+    container_name: rpin
+    environment:
+      VIZIX_BRIDGE_TYPE: rulesprocessor
+      VIZIX_KAFKA_CODE: RULESPROCESSOR
+      VIZIX_KAFKA_SERVERS: ${KAFKA_ADDRESS}:9092
+      VIZIX_KAFKA_CACHE_TICKLE_MODE: "MONGO_INJECTOR"
+      VIZIX_KAFKA_PROCESSING_MODE: "INGESTION"
+      VIZIX_ESPER: 'yes'
+      VIZIX_MAX_ERRORS_ON_RULE_THRESHOLD: 0
+      VIZIX_EVENT_GENERATOR_ACTIVE: "true"
+      
+  mongoinjector:
+    hostname: mongoinjector
+    container_name: mongoinjector
+    image: ${BRIDGES}
+    environment:
+      VIZIX_CORE_CODE: MONGOINJECTOR
+      VIZIX_BRIDGE_TYPE: mongoingestor
+      VIZIX_KAFKA_SERVERS: ${KAFKA_ADDRESS}:9092
+    volumes:
+      - ${VIZIX_DATA_PATH}/mongoinjector-data:/var/vizix/mongoIngestor
+
+  hbridge:
+    hostname: hbridge
+    container_name: hbridge
+    image: ${BRIDGES}
+    ports:
+      - 9091:8080
+    environment:
+      #VIZIX_HTTPB_AUTH_MODE: "USE_UI_SETTING"
+      VIZIX_BRIDGE_TYPE: httpbridge
+      VIZIX_KAFKA_SERVERS: ${KAFKA_ADDRESS}:9092
+    volumes:
+      - ${VIZIX_DATA_PATH}/httpbridge-data:/var/vizix
+
+  m2kbridge:
+    hostname: m2kbridge
+    container_name: m2kbridge
+    image: ${BRIDGES}
+    environment:
+      VIZIX_BRIDGE_TYPE: m2kbridge
+      VIZIX_KAFKA_SERVERS: ${KAFKA_ADDRESS}:9092
+      VIZIX_MQTTHOST: mosquitto
+    volumes:
+      - ${VIZIX_DATA_PATH}/m2k-data:/var/vizix
+
+  k2m:
+    hostname: k2m
+    container_name: k2m
+    image: ${BRIDGES}
+    environment:
+      VIZIX_BRIDGE_TYPE: k2mbridge
+      VIZIX_KAFKA_SERVERS: $KAFKA_ADDRESS:9092
+      VIZIX_MQTTHOST: mosquitto
+    volumes:
+      - ${VIZIX_DATA_PATH}/k2m-data:/var/vizix
+
+  transformbridge:
+    hostname: transformbridge
+    container_name: transformbridge
+    image: ${BRIDGES}
+    environment:
+      VIZIX_BRIDGE_TYPE: transformbridge
+      VIZIX_KAFKA_SERVERS: ${KAFKA_ADDRESS}:9092
+    volumes:
+      - ${VIZIX_DATA_PATH}/transformbridge-data:/var/vizix
+
+  actionprocessor:
+    hostname: actionprocessor
+    container_name: actionprocessor
+    image: ${BRIDGES}
+    restart: always
+    depends_on:
+      - kafka
+      - services
+    environment:
+      VIZIX_BRIDGE_TYPE: actionprocessor
+      VIZIX_KAFKA_SERVERS: ${KAFKA_ADDRESS}:9092
+      VIZIX_M2K_MQTTHOST: mosquitto
+      VIZIX_ESPER: 'yes'
+    volumes:
+       - ${VIZIX_DATA_PATH}/actionprocessor-data:/var/vizix

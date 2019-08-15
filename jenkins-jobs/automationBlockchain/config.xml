@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.4.5">
+      <gitLabConnection></gitLabConnection>
+    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.25">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>AWS_IMAGE_ID</name>
+          <description>ami-d6a974ac ---&gt; blockchain - develop branch automation
+</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>ami-d6a974ac</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>AWS_INSTANCE_TYPE</name>
+          <description>t2.xlarge ----&gt; kafkacorebridge, blockchain
+t2.large ----&gt; cb mt
+t2.micro ----&gt; free</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>t2.xlarge</string>
+              <string>t2.large</string>
+              <string>t2.micro</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>SETUP_SCRIPT_NAME</name>
+          <description>setup.sh ---&gt; cbmt
+setupkafka.sh ----&gt;kafkacorebridge
+setupBlockchain.sh ----&gt; blockchain</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>setupBlockchain.sh</string>
+              <string>setup.sh</string>
+              <string>setupkafka.sh</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>AWS_NEW_VMS_NUMBER</name>
+          <description></description>
+          <defaultValue>3</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>AWS_KEY_NAME</name>
+          <description></description>
+          <defaultValue>awsqa</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LOCAL_KEY_PEM_PATH</name>
+          <description></description>
+          <defaultValue>/home/ariel-quiroz/Documents/automation/</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LOCAL_AWS_CLI_PATH</name>
+          <description></description>
+          <defaultValue>/usr/bin</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LOCAL_IP_PATH_TMP</name>
+          <description></description>
+          <defaultValue>/tmp/ips.json</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_BRANCH</name>
+          <description></description>
+          <defaultValue>release_5.1.4</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LOCAL_PATH_REPORT_JSON</name>
+          <description></description>
+          <defaultValue>/home/ariel-quiroz/Documents/automation/reports/</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>INSTANCE_NAME</name>
+          <description></description>
+          <defaultValue>AQ_blockchain</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>INSTANCE_REGION</name>
+          <description></description>
+          <defaultValue>us-east-1</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>AWS_SECURITY_GROUPS</name>
+          <description></description>
+          <defaultValue>sg-2cbc0f52,sg-e5d4679b,sg-31970c41</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LOCAL_PATH_SMART_CONTRACT</name>
+          <description></description>
+          <defaultValue>/tmp/smartContractAddress.txt</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>GIT_USER</name>
+          <description></description>
+          <defaultValue>test</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>GIT_PASS</name>
+          <description></description>
+          <defaultValue>test</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>AUTOMATION_BRANCH</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.TextParameterDefinition>
+          <name>CMD_POPDB</name>
+          <description></description>
+          <defaultValue>docker-compose exec -T services bash /run.sh install AutomationKafka clean -f</defaultValue>
+        </hudson.model.TextParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty plugin="throttle-concurrents@2.0.1">
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <categories class="java.util.concurrent.CopyOnWriteArrayList"/>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+      <limitOneJobWithMatchingParams>false</limitOneJobWithMatchingParams>
+      <paramsToUseForLimit></paramsToUseForLimit>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>cd /home/ariel-quiroz/git/vizix-qa-automation-ci/setupAmazon
+gradle launchInstanceByTagName -Pimage_id=${AWS_IMAGE_ID} -Pnew_vms_number=${AWS_NEW_VMS_NUMBER} -Pinstance_type=${AWS_INSTANCE_TYPE} -Pkey_name=${AWS_KEY_NAME} -Psecurity_groups=${AWS_SECURITY_GROUPS} -Paws_cli_path=${LOCAL_AWS_CLI_PATH} -Pinstance_name=${INSTANCE_NAME} -Pinstance_region=${INSTANCE_REGION}
+gradle WaitVmAreReady -Pnew_vms_number=${AWS_NEW_VMS_NUMBER} -Paws_cli_path=${LOCAL_AWS_CLI_PATH} -Pinstance_name=${INSTANCE_NAME}
+gradle getIpsFromByTagName -Pinstance_name=${INSTANCE_NAME} -Pips_path_tmp=${LOCAL_IP_PATH_TMP} -Pkey_pem_path=${LOCAL_KEY_PEM_PATH}
+gradle executeScriptBlockchain -Pkey_pem_path=${LOCAL_KEY_PEM_PATH} -Pkey_name=${AWS_KEY_NAME} -Pips_path_tmp=${LOCAL_IP_PATH_TMP} -Psetup_script_name=${SETUP_SCRIPT_NAME} -Ppath_file_smartContract=${LOCAL_PATH_SMART_CONTRACT} -Pdocker_branch=${DOCKER_BRANCH} -Pgit_user=${GIT_USER} -Pgit_password=${GIT_PASS} -Pbranch_automation=${AUTOMATION_BRANCH} -Pcmd_popdb=&quot;${CMD_POPDB}&quot;
+gradle executeTestBlockchain -Pips_path_tmp=${LOCAL_IP_PATH_TMP} -Pkey_pem_path=${LOCAL_KEY_PEM_PATH}
+gradle getJsonReportBlockchain -Pkey_pem_path=${LOCAL_KEY_PEM_PATH} -Pip_path_tmp=${LOCAL_IP_PATH_TMP} -Plocal_path_report_json=${LOCAL_PATH_REPORT_JSON}
+cd  ${LOCAL_PATH_REPORT_JSON}
+for a in $(ls -1 *.tar.gz); do tar -zxvf $a; done
+pwd
+cd /home/ariel-quiroz/git/vizix-qa-automation-ci/setupAmazon
+gradle RemoveInstancesCreated -Paws_cli_path=${LOCAL_AWS_CLI_PATH} -Pkey_pem_path=${LOCAL_KEY_PEM_PATH} -Pinstance_name=${INSTANCE_NAME}
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <net.masterthought.jenkins.CucumberReportPublisher plugin="cucumber-reports@3.8.0">
+      <jsonReportDirectory>${LOCAL_PATH_REPORT_JSON}</jsonReportDirectory>
+      <fileIncludePattern>**/*.json</fileIncludePattern>
+      <fileExcludePattern></fileExcludePattern>
+      <failedStepsNumber>0</failedStepsNumber>
+      <skippedStepsNumber>0</skippedStepsNumber>
+      <pendingStepsNumber>0</pendingStepsNumber>
+      <undefinedStepsNumber>0</undefinedStepsNumber>
+      <failedScenariosNumber>0</failedScenariosNumber>
+      <failedFeaturesNumber>0</failedFeaturesNumber>
+      <trendsLimit>0</trendsLimit>
+      <parallelTesting>false</parallelTesting>
+      <classifications class="empty-list"/>
+    </net.masterthought.jenkins.CucumberReportPublisher>
+    <hudson.plugins.postbuildtask.PostbuildTask plugin="postbuild-task@1.8">
+      <tasks>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText>BUILD</logText>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script>cd /home/ariel-quiroz/git/vizix-qa-automation-ci/automationTask/&#xd;
+gradle SendEmail -Pstatus_result=&quot;BLOCKCHAIN - Branch : ${DOCKER_BRANCH} &quot; -PfilePath=&quot;/var/lib/jenkins/jobs/blockchainJob/builds/${BUILD_NUMBER}/cucumber-html-reports/overview-features.html&quot; -PreportDetailPath=&quot;http://10.100.0.137:8090/job/blockchainJob/${BUILD_NUMBER}/cucumber-html-reports/&quot; -PenvironmentInfo=&quot;/home/ariel-quiroz/Documents/automation/envAWS.txt&quot;</script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+      </tasks>
+    </hudson.plugins.postbuildtask.PostbuildTask>
+  </publishers>
+  <buildWrappers/>
+</project>

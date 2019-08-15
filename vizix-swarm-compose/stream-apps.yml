@@ -1,0 +1,87 @@
+version: "3.3"
+
+networks:
+  iot:
+    driver: overlay
+    attachable: true
+
+services:
+  mongoinjector:
+    image: mojix/riot-core-bridges:develop
+    environment:
+#      MEM_XMS: 2g
+#      MEM_XMX: 6g
+      JAVA_OPTS: "-agentpath:/app/jprofiler/bin/linux-x64/libjprofilerti.so=nowait"
+      VIZIX_CORE_CODE: MongoInjector
+      VIZIX_BRIDGE_TYPE: mongoingestor
+      VIZIX_KAFKA_SERVERS: kafka:9092
+    volumes:
+      - /data/mongoinjector-data:/var/vizix/mongoIngestor
+    ports:
+      - "8851:8849"
+    networks:
+      - iot
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.mongoinjector == true
+
+  hbridge:
+    image: mojix/riot-core-bridges:develop
+    ports:
+      - 9091:8080
+    environment:
+      VIZIX_BRIDGE_TYPE: httpbridge
+      VIZIX_KAFKA_SERVERS: kafka:9092
+    # volumes:
+    #   - /data/httpbridge-data:/var/vizix
+    networks:
+      - iot
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.httpbridge == true
+
+  m2kbridge:
+    image: mojix/riot-core-bridges:develop
+    environment:
+      VIZIX_BRIDGE_TYPE: m2kbridge
+      VIZIX_KAFKA_SERVERS: kafka:9092
+      VIZIX_MQTTHOST: mosquitto
+    # volumes:
+    #   - /data/m2k-data:/var/vizix
+    networks:
+      - iot
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.m2k == true
+
+  k2m:
+    image: mojix/riot-core-bridges:develop
+    environment:
+      VIZIX_BRIDGE_TYPE: k2mbridge
+      VIZIX_KAFKA_SERVERS: kafka:9092
+      VIZIX_MQTTHOST: mosquitto
+    volumes:
+      - /data/k2m-data:/var/vizix
+    networks:
+      - iot
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.k2m == true
+
+  transformbridge:
+    image: mojix/riot-core-bridges:develop
+    environment:
+      VIZIX_BRIDGE_TYPE: transformbridge
+      VIZIX_KAFKA_SERVERS: kafka:9092
+    volumes:
+      - /data/transformbridge-data:/var/vizix
+    networks:
+      - iot
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.transformbridge == true

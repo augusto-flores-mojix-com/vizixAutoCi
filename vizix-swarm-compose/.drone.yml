@@ -1,0 +1,16 @@
+pipeline:
+  compose:
+    image: docker/compose:1.18.0
+    commands:
+      - docker-compose -f core.yml config -q
+      - docker-compose -f services.yml config -q
+      - docker-compose -f stream-apps.yml config -q
+      - docker-compose -f vizix-tools.yml config -q
+  terraform:
+    image: hashicorp/terraform:0.11.0
+    commands:
+      - terraform fmt -check=true
+  markdown:
+    image: mivok/markdownlint:0.4.0
+    commands:
+      - mdl README.md

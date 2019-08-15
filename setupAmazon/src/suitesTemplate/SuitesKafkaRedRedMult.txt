@@ -1,0 +1,6 @@
+StatusAPI,@StateMachineAPI*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false basic,shopcxMult multitenancyRed
+ProductAPI,@EpcisPublishAPI,@EpcisSearchAPI,@SettingStatuses*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false basic,shopcxMult multitenancyRed
+e2eAPI,@aggregatesAPI,@Configuration,@SerializationAPI,@ProductRecommendationAPI*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false basic,shopcxMult multitenancyRed
+ConfigurationLanguages,@Fixture,@InfraDevices,@InfraPovs,@InfraSettings*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false basic,shopcxMult multitenancyRed
+Location,@ConfigurationRules,@ConfigurationAttributes*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false basic,shopcxMult multitenancyRed
+SupplyChain*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false basic,shopcxMult multitenancyRed

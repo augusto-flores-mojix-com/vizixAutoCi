@@ -1,0 +1,392 @@
+group 'Setup'
+version '1.0'
+apply plugin: 'java'
+sourceCompatibility = 1.8
+
+/**
+ * @autor Eynar Pari
+ */
+
+
+/**
+ * Cloud Variables
+ */
+def instance_name=!project.hasProperty('instance_name') ? 'EPAutomation' : project.properties['instance_name']
+def instance_region=!project.hasProperty('instance_region') ? 'eastus' : project.properties['instance_region']
+def image_id=!project.hasProperty('image_id') ? 'ami-d231f6a8' : project.properties['image_id']
+def new_vms_number=!project.hasProperty('new_vms_number') ? '1' : project.properties['new_vms_number']
+def instance_type=!project.hasProperty('instance_type') ? 't2.large' : project.properties['instance_type']
+def key_name=!project.hasProperty('key_name') ? 'awsqa' : project.properties['key_name']
+def security_groups=!project.hasProperty('security_groups') ? 'sg-2cbc0f52' : project.properties['security_groups']
+def key_pem_path=!project.hasProperty('key_pem_path') ? '/home/eynar/Desktop/aws_pems/' : project.properties['key_pem_path']
+def cloud_cli_path=!project.hasProperty('cloud_cli_path') ? '/usr/bin' : project.properties['cloud_cli_path']
+def ip_path_tmp=!project.hasProperty('ip_path_tmp') ? '/tmp/ips.txt' : project.properties['ip_path_tmp']
+def images_path_tmp=!project.hasProperty('images_path_tmp') ? '/tmp/imgId.txt' : project.properties['images_path_tmp']
+def tmp_image=!project.hasProperty('tmp_image') ? 'temporalBVT' : project.properties['tmp_image']
+def tmp_file_image=!project.hasProperty('tmp_file_image') ? '/tmp/bvtImage.txt' : project.properties['tmp_file_image']
+
+/**
+ * Report Path Variable
+ */
+def local_path_report_json=!project.hasProperty('local_path_report_json') ? '/home/eynar/Desktop/localReportAmazon/' : project.properties['local_path_report_json']
+
+
+/**
+ * Credentials
+ */
+def docker_login_user=!project.hasProperty('docker_login_user') ? 'mojixcloudops' : project.properties['docker_login_user']
+def docker_login_pwd=!project.hasProperty('docker_login_pwd') ? '35c-CWN-7mL-akt' : project.properties['docker_login_pwd']
+def git_user=!project.hasProperty('git_user') ? 'usr' : project.properties['git_user']
+def git_password=!project.hasProperty('git_password') ? 'pwd' : project.properties['git_password']
+
+/**
+ * Docker Branches for Services,Bridges,UI,VizixTools
+ */
+def docker_branch_services=!project.hasProperty('docker_branch_services') ? 'dev_6.x.x' : project.properties['docker_branch_services']
+def docker_branch_corebridge=!project.hasProperty('docker_branch_corebridge') ? 'dev_6.x.x' : project.properties['docker_branch_corebridge']
+def docker_branch_ui=!project.hasProperty('docker_branch_ui') ? 'dev_6.x.x' : project.properties['docker_branch_ui']
+def docker_branch_tools=!project.hasProperty('docker_branch_tools') ? 'dev_6.x.x' : project.properties['docker_branch_tools']
+def docker_microservices=!project.hasProperty('docker_microservices') ? 'empty' : project.properties['docker_microservices']
+/**
+ * Automation Variables
+ */
+def is_kafka=!project.hasProperty('is_kafka') ? 'true' : project.properties['is_kafka']
+def is_setting_env=!project.hasProperty('is_setting_env') ? 'true' : project.properties['is_setting_env']
+def popdb_name=!project.hasProperty('popdb_name') ? 'AutomationKafka' : project.properties['popdb_name']
+def branch_automation=!project.hasProperty('branch_automation') ? 'develop' : project.properties['branch_automation']
+def branch_ci=!project.hasProperty('branch_ci') ? 'develop' : project.properties['branch_ci']
+def branch_jmeter=!project.hasProperty('branch_jmeter') ? 'develop' : project.properties['branch_jmeter']
+def number_threads_cb=!project.hasProperty('number_threads_cb') ? '1' : project.properties['number_threads_cb']
+def suite_file=!project.hasProperty('suite_file') ? 'Suites' : project.properties['suite_file']
+
+/**
+ * Variable to Show Logs on Jenkins
+ */
+def logs=!project.hasProperty('logs') ? '/tmp/ci.log' : project.properties['logs']
+
+/**
+ * Variable to define which cloud service will use (i.e aws,azure,googlecloud,others)
+ */
+def cloud_type=!project.hasProperty('cloud_type') ? 'azure' : project.properties['cloud_type']
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile group: 'javax.mail', name: 'mail', version: '1.4.1'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java/'
+        }
+    }
+}
+
+/**
+ This custom task is to send email
+ */
+task SendEmail (dependsOn: 'classes', type: JavaExec) {
+
+    def status_result = !project.hasProperty('status_result') ? '' : project.properties['status_result']
+
+    // file html path for jmeter /owasp / cucumber
+    def filePath = !project.hasProperty('filePath') ? '' : project.properties['filePath']
+
+    def reportDetailPath = !project.hasProperty('reportDetailPath') ? '' : project.properties['reportDetailPath']
+    def testCoverageLink = !project.hasProperty('testCoverageLink') ? '' : project.properties['testCoverageLink']
+    def environmentInfo  = !project.hasProperty('environmentInfo') ? '' : project.properties['environmentInfo']
+    def keyVersion  = !project.hasProperty('keyVersion') ? '' : project.properties['keyVersion']
+    def pathHistoric  = !project.hasProperty('pathHistoric') ? '/home/historicSummary/' : project.properties['pathHistoric']
+    def createHistoric  = !project.hasProperty('createHistoric') ? 'true' : project.properties['createHistoric']
+    def description  = !project.hasProperty('description') ? 'Regression' : project.properties['description']
+
+    // owasp / jmeter / default:cucumber
+    def emailType  = !project.hasProperty('emailType') ? 'cucumber' : project.properties['emailType']
+
+
+    // Official Team Team
+    systemProperty 'EMAILTO','vizix-ci@mojix.com'
+    //systemProperty 'EMAILTO','eynar.pari@mojix.com'
+    systemProperty 'USER', 'automation.vizix.services@gmail.com'
+    systemProperty 'PASSWORD', 'Control123!'
+    systemProperty 'STATUS', status_result
+    systemProperty 'FILEPATH', filePath
+    systemProperty 'REPORTDETAILPATH', reportDetailPath
+    systemProperty 'TESTCOVERAGELINK', testCoverageLink
+    systemProperty 'ENVIRONMNETINFO', environmentInfo
+    systemProperty 'KEYVERSION', keyVersion
+    systemProperty 'PATH_HISTORIC', pathHistoric
+    systemProperty 'CREATE_HISTORIC', createHistoric
+    systemProperty 'DESCRIPTION', description
+    systemProperty 'EMAIL_TYPE', emailType
+
+    main ='SendEmail'
+    classpath =sourceSets.main.runtimeClasspath
+}
+/**
+ * This task is to create N virtual machines on aws
+ */
+task CreateVirtualMachinesCloud()<< {
+    println "*************************************************"
+    println "*        Create Virtual Machine [Task]          *"
+    println "*************************************************"
+
+    println "INFO> cloud_type : " +cloud_type
+    println "INFO> cloud_cli_path : "+cloud_cli_path
+    println "INFO> image _id : " +image_id
+    println "INFO> new_vms_number : " +new_vms_number
+    println "INFO> instance_type : " +instance_type
+    println "INFO> key_name : " +key_name
+    println "INFO> security_groups : " +security_groups
+    println "INFO> instance_region : " +instance_region
+    println "INFO> temporal logs : " +logs
+    println "EXEC> ./Cloud_createVm.sh "+cloud_type+" "+cloud_cli_path+" "+image_id+" "+new_vms_number+" "+instance_type+" "+key_name+" "+security_groups+" "+instance_region+" "+instance_name
+    exec {
+        workingDir System.getProperty("user.dir")+"/src"
+        executable "sh"
+        args "-c",  "./Cloud_createVm.sh "+cloud_type+" "+cloud_cli_path+" "+image_id+" "+new_vms_number+" "+instance_type+" "+key_name+" "+security_groups+" "+instance_region+" "+instance_name+" > "+logs
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
+}
+
+/**
+this task is to wait the amazon vms
+ **/
+task WaitVmAreReady()<< {
+    println "*************************************************"
+    println "*               Wait VM Are Ready [Task]        *"
+    println "*************************************************"
+    println "INFO> cloud_type : " +cloud_type
+    println "INFO> new_vms_number : " +new_vms_number
+    println "INFO> cloud_cli_path : " +cloud_cli_path
+    println "INFO> instance_name : " +instance_name
+    println "INFO> temporal logs : " +logs
+    println "EXEC> ./Cloud_waitVmReady.sh "+cloud_type+" "+cloud_cli_path+" "+new_vms_number+" "+instance_name
+    exec {
+        workingDir System.getProperty("user.dir")+"/src"
+        executable "sh"
+        args "-c",  "./Cloud_waitVmReady.sh "+cloud_type+" "+cloud_cli_path+" "+new_vms_number+" "+instance_name+" > "+logs
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
+    println "INFO> Automation test are ready on amazon vm ..."
+}
+
+/**
+this task is to wait the amazon vms
+ **/
+task CreateNewImage()<< {
+    println "*************************************************"
+    println "*                 Create New Image [Task]       *"
+    println "*************************************************"
+    println "INFO> cloud_type : " +cloud_type
+    println "INFO> cloud_cli_path : " +cloud_cli_path
+    println "INFO> instance_name : " +instance_name
+    println "INFO> tmp_image : " +tmp_image
+    println "INFO> tmp_file_image : " +tmp_file_image
+    println "INFO> security_groups : " +security_groups
+    println "INFO> temporal logs : " +logs
+    println "EXEC> Execute --- >./Cloud_createImage.sh "+cloud_type+" "+cloud_cli_path+" "+instance_name+" "+tmp_image+" "+tmp_file_image+" "+security_groups
+
+    exec {
+        workingDir System.getProperty("user.dir")+"/src"
+        executable "sh"
+        args "-c",  "./Cloud_createImage.sh "+cloud_type+" "+cloud_cli_path+" "+instance_name+" "+tmp_image+" "+tmp_file_image+" "+security_groups+" > "+logs
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
+    println "INFO> Created a new Image configured"
+}
+
+/**
+This task is to get the ip of all vm on amazon
+ **/
+task GetPublicIpFromVirtualMachine()<< {
+    println "*************************************************"
+    println "*        Get Public IP from VM [Task]           *"
+    println "*************************************************"
+    println "INFO> cloud_type : " +cloud_type
+    println "INFO> key_pem_path : " +key_pem_path
+    println "INFO> instance_name : " +instance_name
+    println "INFO> instance_region : " +instance_region
+    println "INFO> ip_path_tmp : " +ip_path_tmp
+    println "INFO> temporal logs : " +logs
+    println "EXEC> ./Cloud_getPublicIpOnList.sh "+cloud_type+" "+key_pem_path+" "+instance_name+" "+instance_region+" "+ip_path_tmp
+
+    exec {
+        workingDir System.getProperty("user.dir")+"/src"
+        executable "sh"
+        args "-c",  "./Cloud_getPublicIpOnList.sh "+cloud_type+" "+key_pem_path+" "+instance_name+" "+instance_region+" "+ip_path_tmp+" > "+logs
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
+}
+
+/**
+this task is to execute the automation test by shh in each amazon vm
+ **/
+task ExecuteAutomationTestRemotly()<< {
+    println "*************************************************"
+    println "*     Execute Automation Test By SSH [Task]     *"
+    println "*************************************************"
+    println "INFO> key_pem_path : " +key_pem_path
+    println "INFO> ip_path_tmp : " +ip_path_tmp
+    println "INFO> docker_branch services : " +docker_branch_services
+    println "INFO> docker_branch bridges: " +docker_branch_corebridge
+    println "INFO> docker_branch ui : " +docker_branch_ui
+    println "INFO> docker_branch_tools : " +docker_branch_tools
+    println "INFO> number_threads_cb : " +number_threads_cb
+    println "INFO> popdb_name : " +popdb_name
+    println "INFO> is_kafka : " +is_kafka
+    println "INFO> git_user : ********"
+    println "INFO> git_password : *********"
+    println "INFO> docker_user : *********"
+    println "INFO> docker_pwd : **********"
+    println "INFO> branch_jmeter : " +branch_jmeter
+    println "INFO> branch_ci : " +branch_ci
+    println "INFO> branch_automation : " +branch_automation
+    println "INFO> is_setting_env : " +is_setting_env
+    println "INFO> suite_file : " +suite_file
+    println "INFO> cloud_type : " +cloud_type
+    println "INFO> temporal logs : " +logs
+    println "INFO> docker_microservices : " +docker_microservices
+
+    println "EXEC> ./Cloud_executeAutomationTest.sh "+ip_path_tmp+" "+key_pem_path+" "+docker_branch_services+" "+docker_branch_corebridge+" "+docker_branch_ui+" "+docker_branch_tools+" docker_login_user docker_login_pwd git_user git_password "+branch_automation+" "+branch_jmeter+" "+number_threads_cb+" "+is_setting_env+" "+popdb_name+" "+is_kafka+" "+branch_ci+" "+suite_file+" "+cloud_type+" "+docker_microservices
+
+    exec {
+        workingDir System.getProperty("user.dir")+"/src"
+        executable "sh"
+        args "-c",  "./Cloud_executeAutomationTest.sh "+ip_path_tmp+" "+key_pem_path+" "+docker_branch_services+" "+docker_branch_corebridge+" "+docker_branch_ui+" "+docker_branch_tools+" "+docker_login_user+" "+docker_login_pwd+" "+git_user+" "+git_password+" "+branch_automation+" "+branch_jmeter+" "+number_threads_cb+" "+is_setting_env+" "+popdb_name+" "+is_kafka+" "+branch_ci+" "+suite_file+" "+cloud_type+" "+docker_microservices+" > "+logs
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
+    println "INFO> Automation test were launched on cloud vms ..."
+}
+
+/**
+This method is to get the json report
+ **/
+task GetJsonReports()<< {
+
+    println "*************************************************"
+    println "*                Get Json Reports [Task]        *"
+    println "*************************************************"
+    println "INFO> cloud_type : " +cloud_type
+    println "INFO> key_pem_path : " +key_pem_path
+    println "INFO> ip_path_tmp : " +ip_path_tmp
+    println "INFO> local_path_report_json : " +local_path_report_json
+    println "INFO> temporal logs : " +logs
+    println "EXEC> ./Cloud_getJsonReport.sh "+key_pem_path+" "+local_path_report_json+" "+ip_path_tmp
+
+    exec {
+        workingDir System.getProperty("user.dir")+"/src"
+        executable "sh"
+        args "-c",  "./Cloud_getJsonReport.sh "+key_pem_path+" "+local_path_report_json+" "+ip_path_tmp+" > "+logs
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
+    println "INFO> json report files from amazon were copied to"+local_path_report_json
+}
+
+/**
+This method is to get the json report and then delete it
+ **/
+task GetJsonReportsAndDelete()<< {
+    println "*************************************************"
+    println "*        Get Json Report And Delete [Task]      *"
+    println "*************************************************"
+    println "INFO> cloud_type : " +cloud_type
+    println "INFO> key_pem_path : " +key_pem_path
+    println "INFO> ip_path_tmp : " +ip_path_tmp
+    println "INFO> local_path_report_json : " +local_path_report_json
+    println "INFO> security_groups : " +security_groups
+    println "INFO> temporal logs : " +logs
+    println "EXEC> ./Cloud_getJsonReportRemove.sh "+cloud_type+" "+key_pem_path+" "+local_path_report_json+" "+ip_path_tmp+" "+security_groups
+
+    exec {
+        workingDir System.getProperty("user.dir")+"/src"
+        executable "sh"
+        args "-c",  "./Cloud_getJsonReportRemove.sh "+cloud_type+" "+key_pem_path+" "+local_path_report_json+" "+ip_path_tmp+" "+security_groups+" > "+logs
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
+    println "INFO> json report files from amazon were copied to"+local_path_report_json
+}
+
+/**
+This task is to remove the instances created with a specific name
+ **/
+task RemoveInstancesCreated()<< {
+    println "*************************************************"
+    println "*            Remove VM Created [Task]           *"
+    println "*************************************************"
+    println "INFO> cloud_type : " +cloud_type
+    println "INFO> Path : "+cloud_cli_path
+    println "INFO> instance_name : " +instance_name
+    println "INFO> instance_region : " +instance_region
+    println "INFO> images_path_tmp : " +images_path_tmp
+    println "INFO> security_groups : " +security_groups
+    println "INFO> temporal logs : " +logs
+    println "EXEC> ./Cloud_getInstanceIdOnList.sh "+cloud_type+" "+cloud_cli_path+" "+instance_name+" "+instance_region+" "+images_path_tmp
+
+    exec {
+        workingDir System.getProperty("user.dir")+"/src"
+        executable "sh"
+        args "-c",  "./Cloud_getInstanceIdOnList.sh "+cloud_type+" "+cloud_cli_path+" "+instance_name+" "+instance_region+" "+images_path_tmp+" > "+logs
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
+
+    println "EXEC> ./Cloud_removeVm.sh "+cloud_type+" "+images_path_tmp+" "+security_groups
+    exec {
+        workingDir System.getProperty("user.dir")+"/src"
+        executable "sh"
+        args "-c",  "./Cloud_removeVm.sh "+cloud_type+" "+images_path_tmp+" "+security_groups+" > "+logs
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            return standardOutput.toString()
+        }
+    }
+    println "INFO> Virtual Machine were removed..."
+}
+
+/**
+ * this task is to show the gradle logs
+ */
+task doLast {
+    sleep(5000)
+    println "LOG> Temporal Logs File : "+logs
+
+    File logFile = new File(logs);
+    if ( logFile.isFile() ) {
+        String fileContents = new File(logs).text
+        println fileContents
+    }
+    exec {
+        workingDir "/tmp/"
+        executable "sh"
+        args "-c",  'echo "" > '+logs
+    }
+}
+

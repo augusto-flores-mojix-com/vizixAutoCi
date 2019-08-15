@@ -1,0 +1,60 @@
+
+
+  services:
+    restart: always
+    depends_on:
+      - mosquitto
+      - mongo
+      - oracle
+      - hazelcast
+    hostname: services
+    container_name: services
+    mem_reservation: 4g
+    image: ${SERVICES}
+    environment:
+      MEM_XMS: 1g
+      MEM_XMX: 4g
+      VIZIX_MONGO_PRIMARY: mongo:27017
+      VIZIX_MQTT_HOST: mosquitto
+      VIZIX_CONNECTION_URL: jdbc:oracle:thin:@oracle:1521/ORCLCBD
+      VIZIX_DB_NAME: riot_main
+      VIZIX_DB_USER: C##VIZIX
+      VIZIX_DB_PASSWORD: 7GHnREKP+Ns14
+      VIZIX_DB_DRIVER: oracle.jdbc.OracleDriver
+      VIZIX_DB_DIALECT: org.hibernate.dialect.Oracle12cDialectExtended
+      VIZIX_DB_SCHEMA: C##VIZIX
+      VIZIX_HAZELCAST_DISTRIBUTED_ENABLE: "true"
+      VIZIX_HAZELCAST_NATIVE_CLIENT_ADDRESS: hazelcast
+      VIZIX_AUTHENTICATION_MODE: nativeAuthentication
+    logging:
+      options:
+        max-size: 1g
+
+  reports:
+    restart: always
+    depends_on:
+      - mongo
+      - oracle
+      - hazelcast
+    hostname: reports
+    container_name: reports
+    mem_reservation: 4g
+    image: ${REPORTS}
+    environment:
+      MEM_XMS: 1g
+      MEM_XMX: 4g
+      VIZIX_MONGO_PRIMARY: mongo:27017
+      VIZIX_MQTT_HOST: mosquitto
+      VIZIX_CONNECTION_URL: jdbc:oracle:thin:@oracle:1521/ORCLCBD
+      VIZIX_DB_NAME: riot_main
+      VIZIX_DB_USER: C##VIZIX
+      VIZIX_DB_PASSWORD: 7GHnREKP+Ns14
+      VIZIX_DB_DRIVER: oracle.jdbc.OracleDriver
+      VIZIX_DB_DIALECT: org.hibernate.dialect.Oracle12cDialectExtended
+      VIZIX_DB_SCHEMA: C##VIZIX
+      VIZIX_HAZELCAST_DISTRIBUTED_ENABLE: "true"
+      VIZIX_HAZELCAST_NATIVE_CLIENT_ADDRESS: hazelcast
+      VIZIX_AUTHENTICATION_MODE: nativeAuthentication
+    logging:
+      options:
+        max-size: 1g

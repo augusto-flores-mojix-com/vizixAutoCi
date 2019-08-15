@@ -1,0 +1,3 @@
+WebUIBasicWorkflow*-PremoteUserName=user*-PremoteKey=key*-PremoteBrowser=Chrome*-PremoteBrowserVersion=70.0*-PremoteOs=Windows*-PremoteOsVersion=10 basic uiGridAll
+WebUIBasicWorkflow*-PremoteUserName=user*-PremoteKey=key*-PremoteBrowser=Chrome*-PremoteBrowserVersion=69.0*-PremoteOs=Windows*-PremoteOsVersion=10 basic uiGridAll
+WebUIBasicWorkflow*-PremoteUserName=user*-PremoteKey=key*-PremoteBrowser=Chrome*-PremoteBrowserVersion=68.0*-PremoteOs=Windows*-PremoteOsVersion=10 basic uiGridAll

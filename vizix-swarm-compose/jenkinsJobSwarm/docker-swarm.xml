@@ -1,0 +1,184 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <org.jenkinsci.plugins.blockbuildfinalproject.BlockBuildJobProperty plugin="block-build-final-project@1.0">
+      <useBlockBuildUpstreamProject>false</useBlockBuildUpstreamProject>
+      <useBlockBuildDownstreamProject>false</useBlockBuildDownstreamProject>
+      <finalUpstreamProjectsList/>
+      <finalDownstreamProjectsList reference="../finalUpstreamProjectsList"/>
+    </org.jenkinsci.plugins.blockbuildfinalproject.BlockBuildJobProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>AWS_ACCESS_KEY</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>AWS_SECRET_KEY</name>
+          <description></description>
+          <defaultValue>{AQAAABAAAAAQzRhe6O5BnC90rdSCQ9qYe9qprAl1rOcst2TyNShbJ+4=}</defaultValue>
+        </hudson.model.PasswordParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>AWS_REGION</name>
+          <description></description>
+          <defaultValue>us-east-1</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PRIVATE_KEY_PEM</name>
+          <description></description>
+          <defaultValue>/root/.ssh/awsqa.pem</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>NAME_PREFIX</name>
+          <description></description>
+          <defaultValue>JC_Swarm</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>AMI_ID</name>
+          <description></description>
+          <defaultValue>ami-d231f6a8</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SECURITY_GROUPS</name>
+          <description></description>
+          <defaultValue>[&quot;default&quot;, &quot;QA-Default&quot;, &quot;blockchain&quot;]</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PRIVATE_KEY_NAME</name>
+          <description></description>
+          <defaultValue>awsqa</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>GIT_USERNAME</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>GIT_PASSWORD</name>
+          <description></description>
+          <defaultValue>{AQAAABAAAAAQ7cGhJypY0j3jLl/INCTgtXZuu8NpyBSl1d1NKH4iMLc=}</defaultValue>
+        </hudson.model.PasswordParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH_AUTOMATION</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>INSTANCE_TYPE</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>t2.large</string>
+              <string>t2.xlarge</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PROJECT_PATH</name>
+          <description></description>
+          <defaultValue>/home/jcussi/repos/vizix-qa-automation-ci/vizix-swarm-compose</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_LOGIN</name>
+          <description></description>
+          <defaultValue>mojixcloudops</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DOCKER_PASS</name>
+          <description></description>
+          <defaultValue>35c-CWN-7mL-akt</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>CUCUMBER_CATEGORY</name>
+          <description></description>
+          <defaultValue>bvt</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>N_THREADS</name>
+          <description></description>
+          <defaultValue>1</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JMTR_RAMP_UP</name>
+          <description></description>
+          <defaultValue>1</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JMTR_LOOP</name>
+          <description></description>
+          <defaultValue>1</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JMTR_CATEGORY</name>
+          <description></description>
+          <defaultValue>report</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JMTR_HEAP_MEMORY</name>
+          <description></description>
+          <defaultValue>1024</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JMTRT_PATH_SCRIPT</name>
+          <description></description>
+          <defaultValue>/test/analytics/reports</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>OPTION_EXECUTION</name>
+          <description></description>
+          <defaultValue>cucumber</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH_UI</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH_BRIDGES</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH_SERVICES</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>cd ${PROJECT_PATH}
+
+export PATH=&quot;/opt/terraform:$PATH&quot;
+export NUMBER_RULESPROCESSOR=$(grep -o &apos;rulesprocessor&apos; $PROJECT_PATH/scripts/configFile.csv | wc -l)
+echo &quot;NUMBER_RULESPROCESSOR: &quot;$NUMBER_RULESPROCESSOR
+terraform init -var aws_access_key=${AWS_ACCESS_KEY} -var aws_secret_key=${AWS_SECRET_KEY} -var git_username=${GIT_USERNAME} -var git_password=${GIT_PASSWORD} 
+terraform plan -var aws_access_key=${AWS_ACCESS_KEY} -var aws_secret_key=${AWS_SECRET_KEY} -var git_username=${GIT_USERNAME} -var git_password=${GIT_PASSWORD} 
+terraform apply -auto-approve -var aws_access_key=${AWS_ACCESS_KEY} -var aws_secret_key=${AWS_SECRET_KEY} -var aws_region=${AWS_REGION} -var private_key_path=${PRIVATE_KEY_PEM} -var name=${NAME_PREFIX} -var aws_ami=${AMI_ID} -var instance_type=${INSTANCE_TYPE} -var aws_security_groups=&quot;${SECURITY_GROUPS}&quot; -var aws_key_name=${PRIVATE_KEY_NAME} -var git_username=${GIT_USERNAME} -var git_password=${GIT_PASSWORD} -var aws_count_rulesprocessor=$NUMBER_RULESPROCESSOR
+
+echo &quot;scripts/configuration.sh&quot; ${GIT_USERNAME} ${GIT_PASSWORD} ${PRIVATE_KEY_PEM} ${NAME_PREFIX} ${AWS_REGION} ${DOCKER_LOGIN} ${DOCKER_PASS} ${PROJECT_PATH} 
+./scripts/configuration.sh ${GIT_USERNAME} ${GIT_PASSWORD} ${PRIVATE_KEY_PEM} ${NAME_PREFIX} ${AWS_REGION} ${DOCKER_LOGIN} ${DOCKER_PASS} ${PROJECT_PATH} ${BRANCH_UI} ${BRANCH_SERVICES} ${BRANCH_BRIDGES}
+export IP_CLIENT=$(terraform output Client_public_IP)
+echo &quot;IP_CLIENT: &quot;$IP_CLIENT
+echo &quot;scripts/executeTest.sh &quot;${GIT_USERNAME} ${GIT_PASSWORD} ${PRIVATE_KEY_PEM} ${PROJECT_PATH} ${CUCUMBER_CATEGORY} ${N_THREADS} ${JMTR_RAMP_UP} ${JMTR_LOOP} ${JMTR_CATEGORY} ${JMTR_HEAP_MEMORY} ${JMTRT_PATH_SCRIPT} ${OPTION_EXECUTION} ${BRANCH_AUTOMATION}
+./scripts/executeTest.sh ${GIT_USERNAME} ${GIT_PASSWORD} ${PRIVATE_KEY_PEM} ${PROJECT_PATH} ${CUCUMBER_CATEGORY} ${N_THREADS} ${JMTR_RAMP_UP} ${JMTR_LOOP} ${JMTR_CATEGORY} ${JMTR_HEAP_MEMORY} ${JMTRT_PATH_SCRIPT} ${OPTION_EXECUTION} ${BRANCH_AUTOMATION}
+echo &quot;scripts/getClientReport.sh &quot; ${OPTION_EXECUTION} ${PROJECT_PATH} $IP_CLIENT ${PRIVATE_KEY_PEM}
+./scripts/getClientReport.sh ${OPTION_EXECUTION} ${JMTRT_PATH_SCRIPT} $IP_CLIENT ${PRIVATE_KEY_PEM}
+terraform destroy -force -var aws_access_key=${AWS_ACCESS_KEY} -var aws_secret_key=${AWS_SECRET_KEY} -var aws_region=${AWS_REGION} -var private_key_path=${PRIVATE_KEY_PEM} -var name=${NAME_PREFIX} -var aws_ami=${AMI_ID} -var instance_type=${INSTANCE_TYPE} -var aws_security_groups=&quot;${SECURITY_GROUPS}&quot; -var aws_key_name=${PRIVATE_KEY_NAME} -var git_username=${GIT_USERNAME} -var git_password=${GIT_PASSWORD} </command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

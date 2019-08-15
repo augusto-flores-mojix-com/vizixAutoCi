@@ -1,0 +1,106 @@
+version: "3.4"
+
+networks:
+  default:
+    external:
+      name: vizix_iot
+
+configs:
+  prometheus.yml:
+    file: ./prometheus.yml
+
+services:
+
+  grafana:
+    image: grafana/grafana:4.6.3
+    ports:
+      - 3000:3000
+    volumes:
+      - /data/grafana:/var/lib/grafana/
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: '0.2'
+          memory: 150M
+        limits:
+          cpus: '0.5'
+          memory: 200M
+      placement:
+        constraints:
+          - node.role==manager
+
+  prometheus:
+    image: prom/prometheus:v2.0.0
+    configs:
+      - source: prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+    volumes:
+      - /data/prometheus:/prometheus
+    ports:
+      - 9009:9090
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: '0.4'
+          memory: 150M
+        limits:
+          cpus: '0.5'
+          memory: 200M
+      placement:
+        constraints:
+          - node.role==manager
+
+  kafka_exporter:
+    image: danielqsj/kafka-exporter:v1.0.1
+    command: --kafka.server=kafka:9092
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role==manager
+      resources:
+        reservations:
+          cpus: '0.2'
+          memory: 150M
+        limits:
+          cpus: '0.3'
+          memory: 200M
+
+  node_exporter:
+    image: prom/node-exporter:v0.15.2
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /etc/hostname:/etc/host_hostname:ro
+    hostname: "{{.Node.Hostname}}"
+    environment:
+      HOST_HOSTNAME: /etc/host_hostname
+    command: --path.procfs /host/proc --path.sysfs /host/sys --collector.textfile.directory /etc/node-exporter/ --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)"
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+  cadvisor:
+    image: google/cadvisor:v0.28.3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    deploy:
+      mode: global
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 128M
+        reservations:
+          cpus: '0.10'
+          memory: 64M

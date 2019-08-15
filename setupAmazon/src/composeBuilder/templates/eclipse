@@ -1,0 +1,186 @@
+
+  reportgenerator:
+    image: ${REPORTGENERATOR}
+    hostname: reportgenerator
+    container_name: reportgenerator
+    environment:
+      - VIZIX_REPORT_GENERATOR_PRODUCT_THINGTYPE_FQN=/ECLIPSE/PRODUCT
+      - VIZIX_REPORT_GENERATOR_PRODUCT_DB_COLLECTION=productcube
+      - VIZIX_REPORT_GENERATOR_EPCISEVENT_THINGTYPE_FQN=/ECLIPSE/EPCISEVENT
+      - VIZIX_REPORT_GENERATOR_EPCISEVENT_DB_COLLECTION=epciseventcube
+      - VIZIX_REPORT_GENERATOR_CONTENT_THINGTYPE_FQN=/ECLIPSE/CONTENT
+      - VIZIX_REPORT_GENERATOR_REFERENCE_LIST_THINGTYPE_FQN=/ECLIPSE/REFERENCELIST
+      - VIZIX_REPORT_GENERATOR_REFERENCE_LIST_DB_COLLECTION=referencelistcube
+      - VIZIX_REPORT_GENERATOR_CATEGORY_THINGTYPE_FQN=/ECLIPSE/DEPARTMENTZONEMAPPING
+      - VIZIX_REPORT_GENERATOR_CATEGORY_DB_COLLECTION=categorycube
+      - VIZIX_REPORT_GENERATOR_STATUS_DB_COLLECTION=statuscube
+      - VIZIX_REPORT_GENERATOR_STATUS_THINGTYPE_FQN=/ECLIPSE/ITEM,/ECLIPSE/ITEMFINALSTATUS
+      - VIZIX_REPORT_GENERATOR_LOCATION_THINGTYPE_FQN=/ECLIPSE/LOCATION
+      - VIZIX_REPORT_GENERATOR_LOCATION_DB_COLLECTION=locationcube
+      - VIZIX_REPORT_GENERATOR_FIXTURE_THINGTYPE_FQN=/ECLIPSE/FIXTURE
+      - VIZIX_REPORT_GENERATOR_FIXTURE_DB_COLLECTION=fixturecube
+      - VIZIX_BRIDGE_TYPE=reportgenerator
+      - VIZIX_KAFKA_SERVERS=${INTERNAL_IP}:9092
+
+  tag-management:
+    hostname: tag-management
+    container_name: tag-management
+    image: ${TAG_MANAGEMENT}
+    ports:
+      - 8888:8080
+    environment:
+      # Receiving XML properties
+      - regexp.receiving.tags.asn=receivingTags_.*\.xml
+      - control.file.extension=.end
+      - api.configuration.tag.management.premise.code=tag.management.premise.code
+      - api.epcis.search.protocol=http
+      - api.epcis.search.host=externaltransformer
+      - api.epcis.search.port=8080
+      - api.product.protocol=http
+      - api.product.host=externaltransformer
+      - api.product.port=8080
+      - api.epcis.input.protocol=http
+      - api.epcis.input.host=externaltransformer
+      - api.epcis.input.port=8080
+      - api.configuration.location.protocol=http
+      - api.configuration.location.host=externaltransformer
+      - api.configuration.location.port=8080
+      - api.epcis.input.audit=true
+      - api.configuration.translation.protocol=http
+      - api.configuration.translation.host=externaltransformer
+      - api.configuration.translation.port=8080
+      - kafka.servers=${INTERNAL_IP}:9092
+      - receiving.app.authorization=Basic cm9vdDpDb250cm9sMTIzIQ==
+      - kafka.topics=___v1___cache___group
+      - JAVA_OPTS= -DMYSQL_USER=root -DMYSQL_PASSWORD=control123! -DMYSQL_URL=shopcx-mysql -DMYSQL_PORT=3306 -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1  -XshowSettings:vm
+    volumes:
+      - /home/ftp/files:/usr/local/exchangecl
+
+
+  tag-auth:
+    hostname: tag-auth
+    container_name: tag-auth
+    image: ${TAG_AUTH}
+    ports:
+      - 8099:8080
+    environment:
+      - KEY_SECRET=FLXZilOA
+      - KEY_SALT=LLTUS5oI
+      - JAVA_OPTS=-Djdbc-username=root -Djdbc-password=control123! -Djdbc-url=shopcx-mysql -Dtagauth-key-secret=FLXZilOA -Dtagauth-key-salt=LLTUS5oI
+
+  shopcx-mysql:
+    hostname: shopcx-mysql
+    container_name: shopcx-mysql
+    image: ${MYSQL_SHOPCX}
+    ports:
+      - 3307:3306
+    environment:
+      #- MYSQL_DATABASE=riot_main
+      - MYSQL_ROOT_PASSWORD=control123!
+    volumes:
+      - ${VIZIX_DATA_PATH}//shopcx-mysql/data:/var/lib/mysql
+    command: --max_allowed_packet=1024M --max_connections=7000 --interactive_timeout=3600 --wait_timeout=3600 --lower_case_table_names=1 --net_write_timeout=3600 --net_read_timeout=3600 --innodb_lock_wait_timeout=600 --skip-name-resolve --innodb_thread_sleep_delay=60000000 --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_unicode_ci
+
+  reverse-proxy-devices:
+    hostname: reverse-proxy-devices
+    container_name: reverse-proxy-devices
+    image: ${REVERSE_PROXY_DEVICES}
+
+  shopcx-rabbitmq:
+    image: ${RABBIT_MQ}
+    hostname: shopcx-rabbitmq
+    container_name: shopcx-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=control123!
+      - HOSTNAME=shopcx-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ${VIZIX_DATA_PATH}/shopcx-rabbitmq/data:/var/lib/rabbitmq
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+
+  dashboard-epcis-search:
+    image: ${DASHBOARD_EPCIS_SEARCH}
+    hostname: dashboard-epcis-search
+    container_name: dashboard-epcis-search
+    environment:
+      - url=http://${EXTERNAL_IP}/
+
+  configuration-api-devices:
+    image: ${API_DEVICES}
+    hostname: configuration-api-devices
+    container_name: configuration-api-devices
+    environment:
+      locations.api.host: internaltransformer
+      locations.api.port: 8080
+      statemachine.api.configuration.firmware.folder: /usr/local/firmware
+      MYSQL_URL: shopcx-mysql
+      MYSQL_DATABASE: configurationdevices
+      MYSQL_USER: root
+      MYSQL_PASSWORD: control123!
+      kafka.servers: ${INTERNAL_IP}:9092
+      JAVA_OPTS: '-DMEM_XMS=1g -DMEM_XMX=2g -DMYSQL_DATABASE=configurationdevices -DMYSQL_USER=root -DMYSQL_PASSWORD=control123! -DMYSQL_URL=shopcx-mysql -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1  -XshowSettings:vm'
+
+  externaltransformer:
+    image: ${EXTERNAL_TRANSFORMER}
+    hostname: externaltransformer
+    container_name: externaltransformer
+    environment:
+      - VIZIX_API=http://proxy/riot-core-services/api
+      - VIZIX_HTTP_BRIDGE=http://${KAFKA_ADDRESS}:9091/http-bridge/v1/data0/
+      - VIZIX_ROOT_API_KEY=${VIZIX_API_KEY}
+      - VIZIX_CXI_API=http://proxySCX:8081
+      - VIZIX_HTTP_BRIDGE_REAL=http://${KAFKA_ADDRESS}:9091/http-bridge
+      - VIZIX_HTTP_BRIDGE_BATCH_SIZE=500
+      - VIZIX_TOPIC_JSON2=/v2/data0/json
+      - VIZIX_DATA_SOURCE=BI_CUBES
+      - VIZIX_MONGO_PRIMARY=mongo:27017
+      - VIZIX_MONGO_USERNAME=admin
+      - VIZIX_MONGO_PASSWORD=control123!
+      - VIZIX_MONGO_AUTH_DATABASE=admin
+      - VIZIX_MONGO_DATABASE=viz_eclipse
+      - VIZIX_MINIO_ACCESS_KEY=minio
+      - VIZIX_MINIO_ENDPOINT=http://minio:9000
+      - VIZIX_MINIO_SECRET_KEY=control123!
+      - VIZIX_MINIO_IMAGE_URL=http://${INTERNAL_IP}:9000
+      - VIZIX_TAG_AUTH_SERVICE=http://tag-auth:8080/tag-auth-api/rest/encryption/grain128a
+#      - VIZIX_TAG_AUTH_MOCK_TNT_TABLE_URL=https://s3.amazonaws.com/tracker-retail/OneID/OneID.json # only for testing  purposes
+      - VIZIX_TAG_AUTH_SESSION_TIMEOUT=300000  # extend session 5 minutes. only for testing purposes
+#      - VIZIX_TAG_AUTH_TNT_URL=http://localhost:8080/digital-signature/tagauth/tnt/{epc} # localhost is ok. only for testing  purposes
+      - VIZIX_TAG_AUTH_TNT_USER=mockuser # only for testing  purposes
+      - VIZIX_TAG_AUTH_TNT_PASSWORD=mockpassword #  only for testing  purposes
+      - VIZIX_TAG_AUTH_TNT_AUTHORIZATION="Basic cm9vdDpDb250cm9sMTIzIQ=="
+      - VIZIX_AMQP_CONNECTION_URI=amqp://admin@shopcx-rabbitmq:5672
+      - VIZIX_AMQP_CONNECTION_PASSWORD=control123!
+      - VIZIX_AMQP_HUB_CONNECTION_URI=amqp://admin@shopcx-rabbitmq:5672
+      - VIZIX_AMQP_HUB_CONNECTION_PASSWORD=control123!
+      - VIZIX_AMQP_HUB_EVENT_QUEUE_NAME=statemachine_jsonEpcis_input_queue
+      - VIZIX_AMQP_HUB_TENANT=ECLIPSE
+      - VIZIX_AMQP_RFL_QUEUE_NAME=supplychain_exchange
+      - VIZIX_DEFAULT_ASSOCIATE_PREMISE=DEFAULTPREMISE
+      - VIZIX_RFL_EVICTION_TIMEOUT=2
+
+  proxySCX:
+    image: ${PROXY_CXI}
+    hostname: proxySCX
+    container_name: proxySCX
+    ports:
+      - 8081:8081
+    environment:
+      - ACME_AGREE=true
+    command: --conf /etc/Caddyfile -http2=false --agree
+    volumes:
+      - ./CaddyfileSCX:/etc/Caddyfile:ro
+
+  internaltransformer:
+    image: ${INTERNAL_TRANSFORMER}
+    hostname: internaltransformer
+    container_name: internaltransformer
+    environment:
+      - EXTERNALTRANSFORMER_HOSTNAME=externaltransformer
+      - EXTERNALTRANSFORMER_PORT=8080
+      - BASIC_AUTH_STRING=${BASIC_AUTH_USER}
+    ports:
+      - 18080:8080

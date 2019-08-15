@@ -1,0 +1,65 @@
+
+
+  # username/password and SSL (server side)
+  mqtt1:
+    image: mojix/emqtt:2.2.0
+    ports:
+      - 8884:8883
+    hostname: mqtt1
+    container_name: mqtt1
+    environment:
+      - EMQ_MQTT__CLIENT__ENABLE_STATS=on
+      - EMQ_MQTT__SESSION__ENABLE_STATS=on
+      - EMQ_MQTT__MAX_PACKET_SIZE=512000KB
+      - EMQ_MQTT__SESSION__MAX_INFLIGHT=1000
+      - EMQ_MQTT__CLIENT__IDLE_TIMEOUT=120s
+      - EMQ_MQTT__SESSION__EXPIRY_INTERVAL=5s
+      - EMQ_MQTT__ALLOW_ANONYMOUS=false
+      - EMQ_LISTENER__SSL__EXTERNAL__CACERTFILE=etc/certs/cacert.pem
+      - EMQ_LOADED_PLUGINS="emq_auth_username,emq_dashboard,emq_modules,emq_recon,emq_retainer"
+    volumes:
+      - ./volume/mqtt1/emq_auth_username.conf:/opt/emqttd/etc/plugins/emq_auth_username.conf
+      - ./volume/mqtt1/private.key:/opt/emqttd/etc/certs/key.pem
+      - ./volume/mqtt1/private.pem:/opt/emqttd/etc/certs/cert.pem
+      - ./volume/mqtt1/ca.pem:/opt/emqttd/etc/certs/cacert.pem
+
+
+  # SSL (server side)
+  mqtt2:
+    image: mojix/emqtt:2.2.0
+    ports:
+      - 8885:8883
+    hostname: mqtt2
+    container_name: mqtt2
+    environment:
+      - EMQ_MQTT__CLIENT__ENABLE_STATS=on
+      - EMQ_MQTT__SESSION__ENABLE_STATS=on
+      - EMQ_MQTT__MAX_PACKET_SIZE=512000KB
+      - EMQ_MQTT__SESSION__MAX_INFLIGHT=1000
+      - EMQ_MQTT__CLIENT__IDLE_TIMEOUT=120s
+      - EMQ_MQTT__SESSION__EXPIRY_INTERVAL=5s
+      - EMQ_LISTENER__SSL__EXTERNAL__CACERTFILE=etc/certs/cacert.pem
+    volumes:
+      - ./volume/mqtt2/private.key:/opt/emqttd/etc/certs/key.pem
+      - ./volume/mqtt2/private.pem:/opt/emqttd/etc/certs/cert.pem
+      - ./volume/mqtt2/ca.pem:/opt/emqttd/etc/certs/cacert.pem
+
+
+  # username/password
+  mqtt3:
+    image: mojix/emqtt:2.2.0
+    ports:
+      - 8886:1883
+    hostname: mqtt3
+    container_name: mqtt3
+    environment:
+      - EMQ_MQTT__CLIENT__ENABLE_STATS=on
+      - EMQ_MQTT__SESSION__ENABLE_STATS=on
+      - EMQ_MQTT__MAX_PACKET_SIZE=512000KB
+      - EMQ_MQTT__SESSION__MAX_INFLIGHT=1000
+      - EMQ_MQTT__CLIENT__IDLE_TIMEOUT=120s
+      - EMQ_MQTT__SESSION__EXPIRY_INTERVAL=5s
+      - EMQ_MQTT__ALLOW_ANONYMOUS=false
+      - EMQ_LOADED_PLUGINS="emq_auth_username,emq_dashboard,emq_modules,emq_recon,emq_retainer"
+    volumes:
+      - ./volume/mqtt3/emq_auth_username.conf:/opt/emqttd/etc/plugins/emq_auth_username.conf

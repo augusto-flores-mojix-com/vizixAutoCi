@@ -1,0 +1,5 @@
+UIThings,@UIThingType,@UIUser,@UIShift,@UIZoneGroup,@UIZone,@UISchedule basic uiDocker
+UISkinSettings basic uiDocker
+UIOwnerShipLevel basic uiDocker
+UICheckAmp basic uiDocker
+UIZone,@UISchedule,@UIAnalytics basic uiDocker

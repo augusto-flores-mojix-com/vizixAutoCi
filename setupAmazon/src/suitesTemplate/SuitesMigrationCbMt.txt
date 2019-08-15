@@ -1,0 +1,3 @@
+-PmigrateToVersion=dev_5.x.x*-PmigrateFromVersion=5.1.3*-PtagsFrom=5010300*-PtagsTo=5010700 basic migration
+-PmigrateToVersion=dev_5.x.x*-PmigrateFromVersion=5.1.4*-PtagsFrom=5010300*-PtagsTo=5010700 basic migration
+-PmigrateToVersion=dev_5.x.x*-PmigrateFromVersion=5.1.7*-PtagsFrom=5010300*-PtagsTo=5010700 basic migration

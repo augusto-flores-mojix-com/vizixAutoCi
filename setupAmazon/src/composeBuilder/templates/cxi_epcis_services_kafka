@@ -1,0 +1,73 @@
+
+  services:
+    restart: always
+    depends_on:
+      - mosquitto
+      - mongo
+      - mysql
+    hostname: services
+    container_name: services
+    mem_reservation: 4g
+    image: ${SERVICES}
+    environment:
+      MEM_XMS: 1g
+      MEM_XMX: 4g
+      VIZIX_MONGO_PRIMARY: mongo:27017
+      VIZIX_MONGO_DB: ${VIZIX_MONGO_DB}
+      VIZIX_MQTT_HOST: mosquitto
+      VIZIX_API_KEY: root
+      VIZIX_CONNECTION_URL: jdbc:mysql://mysql:3306/riot_main?useSSL=false
+      VIZIX_DB_NAME: riot_main
+      VIZIX_DB_USER: root
+      VIZIX_DB_PASSWORD: control123!
+      VIZIX_DB_DRIVER: com.mysql.jdbc.Driver
+      VIZIX_DB_DIALECT: org.hibernate.dialect.MySQLDialect
+      VIZIX_DB_SCHEMA: riot_main
+      VIZIX_HAZELCAST_DISTRIBUTED_ENABLE: "false"
+      VIZIX_HAZELCAST_NATIVE_CLIENT_ADDRESS: hazelcast
+      VIZIX_AUTHENTICATION_MODE: nativeAuthentication
+      VIZIX_KAFKA_ENABLED: "true"
+      VIZIX_KAFKA_ZOOKEEPER: ${KAFKA_ADDRESS}:2181
+      VIZIX_KAFKA_SERVERS: ${KAFKA_ADDRESS}:9092
+      VIZIX_SERVICES_URL: ${KAFKA_ADDRESS}:80
+      VIZIX_SERVICES_CONTEXT_PATH: '/riot-core-services'
+      VIZIX_SERVICES_SECURE: "false"
+      VIZIX_HOME_SERVICES: "/jar"
+      VIZIX_ENABLE_JOBS: "true"
+      VIZIX_VERSIONING_HANDLER: versioning
+      VIZIX_EVENT_GENERATOR_ACTIVE: "true"
+    volumes:
+      - ${VIZIX_DATA_PATH}/attachments:/data
+    ports:
+      - 8080:8080
+
+  reports:
+    restart: always
+    depends_on:
+      - mongo
+      - mysql
+      - services
+    hostname: reports
+    container_name: reports
+    mem_reservation: 4g
+    image: ${REPORTS}
+    environment:
+      MEM_XMS: 1g
+      MEM_XMX: 4g
+      VIZIX_MONGO_PRIMARY: mongo:27017
+      VIZIX_MONGO_DB: ${VIZIX_MONGO_DB}
+      VIZIX_API_KEY: root
+      VIZIX_CONNECTION_URL: jdbc:mysql://mysql:3306/riot_main?useSSL=false
+      VIZIX_DB_NAME: riot_main
+      VIZIX_DB_USER: root
+      VIZIX_DB_PASSWORD: control123!
+      VIZIX_DB_DRIVER: com.mysql.jdbc.Driver
+      VIZIX_DB_DIALECT: org.hibernate.dialect.MySQLDialect
+      VIZIX_DB_SCHEMA: riot_main
+      VIZIX_HAZELCAST_DISTRIBUTED_ENABLE: "false"
+      VIZIX_HAZELCAST_NATIVE_CLIENT_ADDRESS: hazelcast
+      VIZIX_AUTHENTICATION_MODE: nativeAuthentication
+      VIZIX_HOME_SERVICES: "/jar"
+      VIZIX_ENABLE_JOBS: "true"
+    volumes:
+      - ${VIZIX_DATA_PATH}/reports:/data

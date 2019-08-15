@@ -1,0 +1,7 @@
+mosquitto,zookeeper,services,hazelcast,ui,httpbridge,m2k,k2m
+mongo,mysql
+kafka
+actionprocessor,transformbridge
+mongoinjector
+rulesprocessor
+rulesprocessor

@@ -1,0 +1,295 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.21">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.2.9"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.2.9">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>aws_image_id</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>ami-47b71938</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>aws_instance_type</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>t2.xlarge</string>
+              <string>t2.large</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>aws_security_groups</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>sg-2cbc0f52</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>aws_vm_number</name>
+          <description></description>
+          <defaultValue>1</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>aws_key_name</name>
+          <description></description>
+          <defaultValue>awsqa</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>aws_instance_names</name>
+          <description></description>
+          <defaultValue>EP_Local</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>local_key_pem_path</name>
+          <description></description>
+          <defaultValue>/home/eynar/Desktop/aws_pems/</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>local_aws_cli_path</name>
+          <description></description>
+          <defaultValue>/usr/bin</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>local_ips_path_tmp</name>
+          <description></description>
+          <defaultValue>/tmp/ips</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>local_path_report_json</name>
+          <description></description>
+          <defaultValue>/home/eynar/Desktop/localReportAmazon1</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>automation_branch</name>
+          <description></description>
+          <defaultValue>dev/6.x.x</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>branch_jmeter</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>number_of_threads_cb</name>
+          <description></description>
+          <defaultValue>1</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>submit_email</name>
+          <description></description>
+          <defaultValue>Full Regression</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>docker_branch_services</name>
+          <description></description>
+          <defaultValue>dev_6.x.x</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>docker_branch_bridges</name>
+          <description></description>
+          <defaultValue>dev_6.x.x</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>docker_branch_ui</name>
+          <description></description>
+          <defaultValue>dev_6.x.x</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>docker_branch_tools</name>
+          <description></description>
+          <defaultValue>dev_6.x.x</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>were_images_generated</name>
+          <description>0 ----&gt; the images were generated correctly
+1 ----&gt; the image were not generated correctly</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>0</string>
+              <string>1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>popdb_name</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Automation</string>
+              <string>AutomationKafka</string>
+              <string>automation-core</string>
+              <string>automation-kafka</string>
+              <string>platform-core-root</string>
+              <string>platform-core-tenant</string>
+              <string>platform-core-blockchain</string>
+              <string>platform-core-ml</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>is_kafka</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>true</string>
+              <string>false</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>tmp_image</name>
+          <description></description>
+          <defaultValue>temporalBVT</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>branch_ci</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>suite_file_functional</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>SuitesKafka.txt</string>
+              <string>SuitesCbMt.txt</string>
+              <string>SuitesCbMtOracle.txt</string>
+              <string>SuitesPerformanceServices.txt</string>
+              <string>SuitesMigrationCbMt.txt</string>
+              <string>SuitesSecurity.txt</string>
+              <string>SuitesKafkaMysql8.txt</string>
+              <string>SuitesMigrationKafka.txt</string>
+              <string>SuitesUI.txt</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>30</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.53">
+    <script>pipeline {
+    agent any
+    environment { 
+         SETUP_AMAZON=&apos;/home/eynar/Desktop/vizix_repositories/vizix-qa-automation-ci/setupAmazon&apos;
+         SUITES_PATH=&apos;/home/eynar/Desktop/vizix_repositories/vizix-qa-automation-ci/setupAmazon/src/suitesTemplate/&apos;
+         JOB_NAME=&apos;ContinuousDeliveryLocal&apos;
+         PUBLIC_IP=&apos;10.100.1.199:8090&apos;
+         TMP_IMG_BVT=&apos;/tmp/imageAwsBvt&apos;
+         TMP_IMG_IDS=&apos;/tmp/imageId&apos;
+         DYNAMIC_IMAGE_ID=&apos;&apos;
+    }
+    stages {
+        stage(&apos;Generate Image On Docker&apos;) { 
+            steps { 
+                sh &apos;exit ${were_images_generated}&apos; 
+            }
+        }
+        stage(&apos;Installation Test &amp; BVT&apos;){
+            steps {
+                sh &apos;rm -rf ${local_path_report_json}/*.json &amp;&amp; rm -rf ${local_path_report_json}/*.tar.gz&apos;
+                sh &apos;mkdir ${local_path_report_json}/${BUILD_NUMBER}/ &amp;&amp; chmod 777 ${local_path_report_json}/${BUILD_NUMBER}/&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle CreateVirtualMachinesAmazon -Pimage_id=${aws_image_id} -Pnew_vms_number=1 -Pinstance_type=${aws_instance_type} -Pkey_name=${aws_key_name} -Psecurity_groups=${aws_security_groups} -Paws_cli_path=${local_aws_cli_path} -Pinstance_name=${aws_instance_names}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle WaitVmAreReady -Pnew_vms_number=1 -Paws_cli_path=${local_aws_cli_path} -Pinstance_name=${aws_instance_names}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetPublicIpFromVirtualMachine -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Pinstance_name=${aws_instance_names} -Paws_cli_path=${local_aws_cli_path}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle ExecuteAutomationTestRemotly -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Pdocker_branch_services=${docker_branch_services} -Pbranch_automation=${automation_branch} -Pnumber_threads_cb=${number_of_threads_cb} -Pis_setting_env=true -Pdocker_branch_corebridge=${docker_branch_bridges} -Pdocker_branch_ui=${docker_branch_ui} -Ppopdb_name=${popdb_name} -Pis_kafka=${is_kafka} -Pdocker_branch_tools=${docker_branch_tools} -Pbranch_ci=${branch_ci} -Pbranch_jmeter=${branch_jmeter} -Psuite_file=$SUITES_PATH${suite_file_functional}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetJsonReports -Pkey_pem_path=${local_key_pem_path} -Plocal_path_report_json=${local_path_report_json}/${BUILD_NUMBER}/ -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt&apos;
+                sh &apos;echo &quot;report was copied locally&quot; &amp;&amp; echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                sh &apos;cd ${local_path_report_json}/${BUILD_NUMBER}/ &amp;&amp; for a in $(ls -1 *.tar.gz); do tar -zxvf $a; done&apos;
+            }
+            post {
+                always {
+                   step([
+                            $class: &apos;CucumberReportPublisher&apos;,
+                            failedFeaturesNumber: 0,
+                            failedScenariosNumber: 0,
+                            failedStepsNumber: 0,
+                            fileExcludePattern: &apos;&apos;,
+                            fileIncludePattern: &apos;*.json&apos;,
+                            jsonReportDirectory: &apos;${local_path_report_json}/${BUILD_NUMBER}/&apos;,
+                            pendingStepsNumber: 0,
+                            skippedStepsNumber: 0,
+                            trendsLimit: 0,
+                            undefinedStepsNumber: 0,
+                            buildStatus: &apos;Failure&apos;
+                        ])
+                }
+            failure {
+                    sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle RemoveInstancesCreated -Paws_cli_path=${local_key_pem_path} -Pkey_pem_path=${local_key_pem_path} -Pinstance_name=${aws_instance_names} -Pimages_path_tmp=$TMP_IMG_IDS${BUILD_NUMBER}.txt&apos;
+                    sh &apos;rm -rf  /tmp/env.txt&apos;
+                    sh &apos;echo &quot;&lt;table&gt; &lt;tbody&gt; &lt;tr&gt;&lt;th colspan=&quot;4&quot;&gt;Build Information&lt;/th&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Component&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Autor&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Comment&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Services&lt;/b&gt;&lt;/td&gt;&lt;td&gt;@Autor&lt;/td&gt;&lt;td&gt;@Commit&lt;/td&gt;&lt;td&gt;@Comment&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Bridges&lt;/b&gt;&lt;/td&gt;&lt;td&gt;@Autor&lt;/td&gt;&lt;td&gt;@Commit&lt;/td&gt;&lt;td&gt;@Comment&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;UI&lt;/b&gt;&lt;/td&gt;&lt;td&gt;@Autor&lt;/td&gt;&lt;td&gt;@Commit&lt;/td&gt;&lt;td&gt;@Comment&lt;/td&gt;&lt;/tr&gt; &lt;/table&gt;&quot; &gt; /tmp/env.txt&apos;
+                    sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle SendEmail -Pstatus_result=&quot;BVT is FAILED on Setup Environment -  Services: ${docker_branch_services}, Bridges:${docker_branch_bridges} ,UI ${docker_branch_ui} &quot; -PfilePath=&quot;/var/lib/jenkins/jobs/$JOB_NAME/builds/${BUILD_NUMBER}/cucumber-html-reports/overview-features.html&quot; -PreportDetailPath=&quot;http://$PUBLIC_IP/job/$JOB_NAME/${BUILD_NUMBER}/cucumber-html-reports/&quot; -PenvironmentInfo=&quot;/tmp/env.txt&quot; -PkeyVersion=S${docker_branch_services}B${docker_branch_bridges}U${docker_branch_ui} -Pdescription=&quot;Suite:BVT&quot;&apos;
+                    sh &apos;echo &quot;FAILED !!! Setup Env and Build Verification Test&quot; &amp;&amp; exit 1 &apos;
+                }
+            }
+       }
+        stage(&apos;Generate N Machines&apos;) { 
+            steps { 
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle CreateNewImage -Paws_cli_path=${local_aws_cli_path} -Pinstance_name=${aws_instance_names} -Ptmp_image=${tmp_image} -Ptmp_file_image=$TMP_IMG_BVT${BUILD_NUMBER}.txt&apos; 
+                sh &apos;DYNAMIC_IMAGE_ID=$(cat $TMP_IMG_BVT${BUILD_NUMBER}.txt) &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle CreateVirtualMachinesAmazon -Pimage_id=$DYNAMIC_IMAGE_ID -Pnew_vms_number=${aws_vm_number} -Pinstance_type=${aws_instance_type} -Pkey_name=${aws_key_name} -Psecurity_groups=${aws_security_groups} -Paws_cli_path=${local_aws_cli_path} -Pinstance_name=${aws_instance_names}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle WaitVmAreReady -Pnew_vms_number=${aws_vm_number} -Paws_cli_path=${local_aws_cli_path} -Pinstance_name=${aws_instance_names}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetPublicIpFromVirtualMachine -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Pinstance_name=${aws_instance_names} -Paws_cli_path=${local_aws_cli_path}&apos;
+            }
+        }
+        stage(&apos;Testing (Regression)&apos;){
+            steps {
+                sh &apos;rm -rf ${local_path_report_json}/${BUILD_NUMBER}/*.json &amp;&amp; rm -rf ${local_path_report_json}/${BUILD_NUMBER}/*.tar.gz&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle ExecuteAutomationTestRemotly -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Pdocker_branch_services=${docker_branch_services} -Pbranch_automation=${automation_branch} -Pnumber_threads_cb=${number_of_threads_cb} -Pis_setting_env=false -Pdocker_branch_corebridge=${docker_branch_bridges} -Pdocker_branch_ui=${docker_branch_ui} -Ppopdb_name=${popdb_name} -Pis_kafka=${is_kafka} -Pdocker_branch_tools=${docker_branch_tools} -Pbranch_ci=${branch_ci} -Pbranch_jmeter=${branch_jmeter} -Psuite_file=$SUITES_PATH${suite_file_functional}&apos;
+                sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetJsonReportsAndDelete -Pkey_pem_path=${local_key_pem_path} -Plocal_path_report_json=${local_path_report_json}/${BUILD_NUMBER}/ -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt&apos;
+                sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                sh &apos;cd ${local_path_report_json}/${BUILD_NUMBER}/ &amp;&amp; for a in $(ls -1 *.tar.gz); do tar -zxvf $a; done&apos;
+            }
+            post {
+                always {
+                   step([
+                            $class: &apos;CucumberReportPublisher&apos;,
+                            failedFeaturesNumber: 0,
+                            failedScenariosNumber: 0,
+                            failedStepsNumber: 0,
+                            fileExcludePattern: &apos;&apos;,
+                            fileIncludePattern: &apos;*.json&apos;,
+                            jsonReportDirectory: &apos;${local_path_report_json}/${BUILD_NUMBER}/&apos;,
+                            pendingStepsNumber: 0,
+                            skippedStepsNumber: 0,
+                            trendsLimit: 0,
+                            undefinedStepsNumber: 0,
+                            buildStatus: &apos;Failure&apos;
+                        ])
+                    sh &apos;rm -rf  /tmp/env.txt&apos;
+                    sh &apos;echo &quot;&lt;table&gt; &lt;tbody&gt; &lt;tr&gt;&lt;th colspan=&quot;4&quot;&gt;Build Information&lt;/th&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Component&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Autor&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Commit&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Comment&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Services&lt;/b&gt;&lt;/td&gt;&lt;td&gt;@Autor&lt;/td&gt;&lt;td&gt;@Commit&lt;/td&gt;&lt;td&gt;@Comment&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Bridges&lt;/b&gt;&lt;/td&gt;&lt;td&gt;@Autor&lt;/td&gt;&lt;td&gt;@Commit&lt;/td&gt;&lt;td&gt;@Comment&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;UI&lt;/b&gt;&lt;/td&gt;&lt;td&gt;@Autor&lt;/td&gt;&lt;td&gt;@Commit&lt;/td&gt;&lt;td&gt;@Comment&lt;/td&gt;&lt;/tr&gt; &lt;/table&gt;&lt;br&gt;&lt;table&gt; &lt;tbody&gt; &lt;tr&gt;&lt;th colspan=&quot;2&quot;&gt;Environment Information&lt;/th&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Env Type&lt;/b&gt;&lt;/td&gt;&lt;td&gt;Docker on Amazon&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;S.O&lt;/b&gt;&lt;/td&gt;&lt;td&gt;Linux - Ubuntu 16&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;type&lt;/b&gt;&lt;/td&gt;&lt;td&gt;t2.xlarge&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;vCPU&lt;/b&gt;&lt;/td&gt;&lt;td&gt;4&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ram&lt;/b&gt;&lt;/td&gt;&lt;td&gt;16GB&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Storage&lt;/b&gt;&lt;/td&gt;&lt;td&gt;EBS-Only&lt;/td&gt;&lt;/tr&gt; &lt;/tbody&gt; &lt;/table&gt;&quot; &gt; /tmp/env.txt&apos;
+                    sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle SendEmail -Pstatus_result=&quot;${submit_email} Services:${docker_branch_services}, Bridges:${docker_branch_bridges} ,UI ${docker_branch_ui} &quot; -PfilePath=&quot;/var/lib/jenkins/jobs/$JOB_NAME/builds/${BUILD_NUMBER}/cucumber-html-reports/overview-features.html&quot; -PreportDetailPath=&quot;http://$PUBLIC_IP/job/$JOB_NAME/${BUILD_NUMBER}/cucumber-html-reports/&quot; -PenvironmentInfo=&quot;/tmp/env.txt&quot; -PkeyVersion=S${docker_branch_services}B${docker_branch_bridges}U${docker_branch_ui} -Pdescription=&quot;Suite:Regression&quot;&apos;
+                }
+            }
+        }
+    }
+}</script>
+    <sandbox>false</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

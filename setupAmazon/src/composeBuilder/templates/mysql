@@ -1,0 +1,32 @@
+
+
+  mysql:
+    image: ${MYSQL}
+    ports:
+      - 3306:3306
+    restart: always
+    hostname: mysql
+    container_name: mysql
+    mem_reservation: 512m
+    command:
+      - --innodb_adaptive_flushing=1
+      - --innodb_buffer_pool_instances=1
+      - --innodb_lock_wait_timeout=600
+      - --innodb_thread_sleep_delay=60000000
+      - --skip-name-resolve
+      - --thread_cache_size=16
+      - --tmp_table_size=32M
+      - --max_connections=7500
+      - --max_allowed_packet=10240M
+      - --lower_case_table_names=0
+      - --slow-query-log
+      - --interactive_timeout=3600
+      - --net_write_timeout=3600
+      - --net_read_timeout=3600
+      - --default-authentication-plugin=mysql_native_password
+
+    volumes:
+      - ${VIZIX_DATA_PATH}/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=${VIZIX_MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${VIZIX_MYSQL_PASSWORD}

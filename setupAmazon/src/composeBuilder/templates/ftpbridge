@@ -1,0 +1,18 @@
+
+
+  FTPBridge:
+    image: ${BRIDGES}
+    environment:
+      MEM_XMS: 512m
+      MEM_XMX: 1024m
+      AB_MQTTHOST: mosquitto
+      AB_MQTTPORT: '1883'
+      AB_AGENT_CODE: agent4
+      VIZIX_ESPER: 'no'
+      VIZIX_BRIDGE_TYPE: agent
+      AB_LOGGER: stdout
+      AB_SERVICES_HTTP_HOST: services
+      AB_KAFKA_SERVERS: $KAFKA_ADDRESS:9092
+      VIZIX_FTPB_CODE: /MOJIX/SM/FTPCOLOUR
+    volumes:
+      - ${VIZIX_DATA_PATH}/ftpbridgepersisted:/persistedFiles

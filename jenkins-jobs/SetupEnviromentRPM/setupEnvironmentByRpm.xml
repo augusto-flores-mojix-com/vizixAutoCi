@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>yum --enablerepo=vizixqa clean metadata
+
+#cd /usr/local/riot/corebridge/
+#./coreBridgemt.sh stop
+#cd /usr/local/riot/alebridge/
+#./aleBridge.sh stop
+
+
+service tomcat stop
+
+echo &quot;CLEAN TOMCAT&quot;
+rm -rf /usr/share/tomcat/webapps/riot-core-services/
+rm -rf /usr/share/tomcat/webapps/riot-core-services.war
+rm -rf /usr/share/tomcat/log/*
+
+echo &quot;CLEAN BRIDGES&quot;
+rm -rf /usr/local/riot/*
+
+
+yum remove -y vizix-services --enablerepo=vizixqa 
+yum install -y vizix-services --enablerepo=vizixqa
+
+yum remove -y vizix-ui --enablerepo=vizixqa
+yum install -y vizix-ui --enablerepo=vizixqa
+
+yum remove -y vizix-alebridge --enablerepo=vizixqa 
+yum remove -y vizix-corebridge --enablerepo=vizixqa
+yum install -y vizix-alebridge --enablerepo=vizixqa 
+yum install -y vizix-corebridge --enablerepo=vizixqa 
+
+yum remove -y vizix-esperbridge --enablerepo=vizixqa 
+yum install -y vizix-esperbridge --enablerepo=vizixqa 
+
+
+cd /usr/local/riot/services/
+pwd
+
+echo &quot;DOING POPDB&quot;
+./popdb.sh gradle-default.properties MojixRetail
+
+echo &quot;COPYING XML&quot;
+cp /usr/local/riot/services/linux-riot-core-services.xml /usr/share/tomcat/conf/Catalina/localhost/riot-core-services.xml
+
+
+service tomcat start
+
+echo &quot;UPDATING IP FOR WEBUI&quot;
+sed -i &apos;s/localhost/eparic-vm02/g&apos; /var/www/html/scripts/config.js </command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.BuildTrigger>
+      <childProjects>setupLicense</childProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </hudson.tasks.BuildTrigger>
+  </publishers>
+  <buildWrappers/>
+</project>

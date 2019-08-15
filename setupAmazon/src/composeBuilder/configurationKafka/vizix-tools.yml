@@ -1,0 +1,70 @@
+version: "2.3"
+services:
+
+  vizix-tools:
+    image: ${VIZIXTOOLS}
+    command: configure
+    environment:
+
+    #Installation Variables
+      VIZIX_SYSCONFIG: "true"
+      VIZIX_SYSCONFIG_OPTION: automation-core
+      VIZIX_SYSCONFIG_TENANT_CODE: root
+      VIZIX_SYSCONFIG_TENANT_NAME: root
+      VIZIX_SYSCONFIG_HIERARCHY: ">root"
+      VIZIX_SYSCONFIG_CREATE_TENANT: "false"
+      VIZIX_SYSCONFIG_CREATE_THINGS: "false"
+        #Set to false when is an incremental
+      VIZIX_SYSCONFIG_CLEAN: "true"
+
+    #Kafka Enabled
+      VIZIX_KAFKA_SERVERS: kafka:9092
+      VIZIX_KAFKA_ZOOKEEPER: zookeeper:2181
+      VIZIX_KAFKA_CREATE_TOPICS: "true"
+      VIZIX_KAFKA_LOAD_CACHE: "true"
+      VIZIX_KAFKA_LOAD_CACHE_GROUP_FQN: "/"
+      VIZIX_KAFKA_DATA_PARTITIONS: 24
+      VIZIX_KAFKA_DATA_RETENTION_UPDATER: "true"
+      VIZIX_KAFKA_DATA_RETENTION_BYTES: 1073741824
+      VIZIX_KAFKA_DATA_RETENTION_HOURS: 2
+      VIZIX_KAFKA_DATA_REPLICA_FACTOR: 1
+      VIZIX_SITE_CONFIG: "true"
+      VIZIX_KAFKA_DESCRIBE_TOPICS: "false"
+
+    #MONGODB Parameters
+      VIZIX_MONGO_PRIMARY: ${MONGO_HOST}:27017
+      VIZIX_MONGO_AUTHDB: admin
+      VIZIX_MONGO_DB: ${VIZIX_MONGO_DB}
+      VIZIX_MONGO_USERNAME: ${VIZIX_MONGO_USERNAME}
+      VIZIX_MONGO_PASSWORD: ${VIZIX_MONGO_PASSWORD}
+#      VIZIX_MONGO_SECONDARY: ''
+#      VIZIX_MONGO_REPLICASET: ''
+#      VIZIX_MONGO_SSL: 'true'
+#      VIZIX_MONGO_CONTROL_READPREFERENCE: 'primary'
+#      VIZIX_MONGO_REPORTS_READPREFERENCE: 'secondary'
+
+    #MQTT Broker Parameters
+      VIZIX_MQTT_HOST: mosquitto
+      VIZIX_MQTT_PORT: 1883
+
+    #SQLDB Parameters
+      VIZIX_DB_DRIVER: com.mysql.jdbc.Driver
+      VIZIX_DB_DIALECT: org.hibernate.dialect.MySQLDialect
+      VIZIX_DB_DATABASE: ${VIZIX_DB_DATABASE}
+      VIZIX_DB_PASSWORD: ${VIZIX_DB_PASSWORD}
+      VIZIX_AUTHENTICATION_MODE: nativeAuthentication
+      VIZIX_CONNECTION_URL: jdbc:mysql://${DB_HOST}:3306/riot_main?useSSL=false
+
+    #SERVICES Connection
+      VIZIX_API_PORT: 80
+      VIZIX_API_HOST: ${KAFKA_ADDRESS}
+      VIZIX_API_KEY: 7B4BCCDC
+      VIZIX_API_PATH: /riot-core-services
+
+    #HAZELCAST Parameters
+      VIZIX_HAZELCAST_DISTRIBUTED_ENABLE: "false"
+      VIZIX_HAZELCAST_NATIVE_CLIENT_ADDRESS: hazelcast
+
+    volumes:
+      - ${VIZIX_DATA_PATH}/riot-core-sysconfig:/data/sysconfig
+      - ${VIZIX_DATA_PATH}/services/data:/data

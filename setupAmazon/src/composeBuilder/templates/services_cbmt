@@ -1,0 +1,39 @@
+
+
+  services:
+    restart: always
+    depends_on:
+      - mosquitto
+      - mongo
+      - mysql
+      - hazelcast
+    hostname: services
+    container_name: services
+    mem_reservation: 4g
+    image: ${SERVICES}
+    ports:
+      - 8849:8849
+    environment:
+      MEM_XMS: 1g
+      MEM_XMX: 4g
+      VIZIX_MONGO_PRIMARY: mongo:27017
+      VIZIX_MQTT_HOST: mosquitto
+      VIZIX_API_KEY: root
+      VIZIX_CONNECTION_URL: jdbc:mysql://mysql:3306/riot_main?useSSL=false
+      VIZIX_DB_NAME: riot_main
+      VIZIX_DB_USER: root
+      VIZIX_DB_PASSWORD: control123!
+      VIZIX_DB_DIALECT: org.hibernate.dialect.MySQLDialect
+      VIZIX_DB_SCHEMA: riot_main
+      VIZIX_HAZELCAST_DISTRIBUTED_ENABLE: "true"
+      VIZIX_HAZELCAST_NATIVE_CLIENT_ADDRESS: hazelcast
+      VIZIX_AUTHENTICATION_MODE: nativeAuthentication
+      VIZIX_KAFKA_ENABLED: "false"
+      VIZIX_MONGO_MAX_POOL_SIZE: 2000
+      JAVA_OPTS: "-agentpath:/app/jprofiler/bin/linux-x64/libjprofilerti.so=nowait"
+    volumes:
+      - ${VIZIX_DATA_PATH}/attachments:/data
+    ulimits:
+      nofile:
+        soft: 90000
+        hard: 100000

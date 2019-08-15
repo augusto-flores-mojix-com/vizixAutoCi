@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.21">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.2.9"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.2.9">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>reportDirectory</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>statusResult</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>envInformation</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>keyVersion</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>descriptionSuite</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.53">
+    <script>pipeline {
+    agent any
+    environment { 
+         SETUP_AMAZON=&apos;/home/eynar/Desktop/vizix_repositories/vizix-qa-automation-ci/setupAmazon&apos;
+         SUITES_PATH=&apos;/home/eynar/Desktop/vizix_repositories/vizix-qa-automation-ci/setupAmazon/src/suitesTemplate/&apos;
+         JOB_NAME=&apos;ContinuousDeliveryReport&apos;
+         PUBLIC_IP=&apos;10.100.1.199:8090&apos;
+    }
+    stages {
+        stage(&apos;Generate Report&apos;) { 
+            steps { 
+                sh &apos;echo &quot;generating cucumber report ...&quot;&apos;
+            }
+             post {
+                always {
+                   step([
+                            $class: &apos;CucumberReportPublisher&apos;,
+                            failedFeaturesNumber: 0,
+                            failedScenariosNumber: 0,
+                            failedStepsNumber: 0,
+                            fileExcludePattern: &apos;&apos;,
+                            fileIncludePattern: &apos;*.json&apos;,
+                            jsonReportDirectory: &apos;${reportDirectory}&apos;,
+                            pendingStepsNumber: 0,
+                            skippedStepsNumber: 0,
+                            trendsLimit: 0,
+                            undefinedStepsNumber: 0,
+                            buildStatus: &apos;Failure&apos;
+                        ])
+                    sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle SendEmail -Pstatus_result=&quot;${statusResult}&quot; -PfilePath=&quot;/var/lib/jenkins/jobs/$JOB_NAME/builds/${BUILD_NUMBER}/cucumber-html-reports/overview-features.html&quot; -PreportDetailPath=&quot;http://$PUBLIC_IP/job/$JOB_NAME/${BUILD_NUMBER}/cucumber-html-reports/&quot; -PenvironmentInfo=&quot;${envInformation}&quot; -PkeyVersion=${keyVersion} -Pdescription=&quot;${descriptionSuite}&quot;&apos;
+                }
+            }
+        }
+    }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

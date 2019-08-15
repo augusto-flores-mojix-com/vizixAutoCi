@@ -1,0 +1,66 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+        google.charts.load('current', {'packages':['corechart']});
+
+        google.charts.setOnLoadCallback(drawChartUI);
+        google.charts.setOnLoadCallback(drawChartServices);
+
+        function drawChartUI() {
+
+            jsonData = 'REPLACE_DATA_UI'
+            jsonData = JSON.stringify(eval("("+jsonData+")"));
+            console.log(jsonData)
+            var data = new google.visualization.DataTable(jsonData);
+
+            var piechart_options = {title:'Pie Chart: Performance UI Execution Average', width:400, height:300};
+            var piechart = new google.visualization.PieChart(document.getElementById('piechart_div_ui'));
+            piechart.draw(data, piechart_options);
+
+            var barchart_options = {title:'Barchart: Performance UI Execution Average', width:400, height:300, legend: 'none'};
+            var barchart = new google.visualization.BarChart(document.getElementById('barchart_div_ui'));
+            barchart.draw(data, barchart_options);
+        }
+
+        function drawChartServices() {
+            jsonData = 'REPLACE_DATA_SERVICES'
+            jsonData = JSON.stringify(eval("("+jsonData+")"));
+            console.log(jsonData)
+            var data = new google.visualization.DataTable(jsonData);
+
+            var piechart_options = {title:'Pie Chart: Performance UI Execution Average', width:400, height:300};
+            var piechart = new google.visualization.PieChart(document.getElementById('piechart_div_services'));
+            piechart.draw(data, piechart_options);
+
+            var barchart_options = {title:'Barchart: Performance UI Execution Average', width:400, height:300, legend: 'none'};
+            var barchart = new google.visualization.BarChart(document.getElementById('barchart_div_services'));
+            barchart.draw(data, barchart_options);
+        }
+        drawChartUI();
+        drawChartServices();
+        // drawChartBridges()
+    </script>
+</head>
+
+<body>
+<!--Div that will hold the pie chart-->
+<table class="columns">
+    <tr>
+        <td><div id="piechart_div_ui" style="border: 1px solid #ccc"></div></td>
+        <td><div id="barchart_div_ui" style="border: 1px solid #ccc"></div></td>
+        <td><div id="linechart_div_ui" style="border: 1px solid #ccc"></div></td>
+    </tr>
+    <tr>
+        <td><div id="piechart_div_services" style="border: 1px solid #ccc"></div></td>
+        <td><div id="barchart_div_services" style="border: 1px solid #ccc"></div></td>
+        <td><div id="linechart_div_services" style="border: 1px solid #ccc"></div></td>
+    </tr>
+    <!--<tr>-->
+        <!--<td><div id="piechart_div_bridges" style="border: 1px solid #ccc"></div></td>-->
+        <!--<td><div id="barchart_div_bridges" style="border: 1px solid #ccc"></div></td>-->
+    <!--</tr>-->
+</table>
+</body>
+</html>

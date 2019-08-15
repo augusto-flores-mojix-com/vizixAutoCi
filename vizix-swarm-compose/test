@@ -1,0 +1,33 @@
+#!/bin/bash
+#================================#
+CATEGORY=$1
+IP=$2
+AUTOMATION_FILE=$3
+UI_REPORT_FILE=$4
+echo "CATEGORY: "+$CATEGORY+" AUTOMATION FILE: "+$AUTOMATION_FILE+" UI_REPORT_FILE: "+$UI_REPORT_FILE
+#================================#
+cd ${AUTOMATION_FILE}
+IN=$CATEGORY
+#arr=$(echo $IN | tr "," "\n")
+arrIN=(${IN//,/ })
+#IFS=' ' read -a OUT <<< "${IN}"
+echo "==================" ${arrIN[@]} "==================="
+
+i=0
+while read line
+do
+        array_ip[$i]="$line"
+        #i=$((i+1))
+#done < $IP
+        #echo ${IN} | cut -d "," -f${i} "--------------- category"
+        echo $i " : " ${line} "---------------->" ${arrIN[$i]}
+#for x in $arr
+#do
+        cp -rf ${AUTOMATION_FILE}/build/reports/cucumber/*.json ${UI_REPORT_FILE}/${CATEGORY}.json
+        echo "gradle automationTest -Pcategory="${arrIN[$i]} "-Pnocategory=~@NotImplemented -Pbrowser='CHROME' -PrefreshCoreBridge=20 -PservicesProcessingTime=20 -PmongoProcessingTime$
+        gradle automationTest -Pcategory=${arrIN[$i]} -Pnocategory=~@NotImplemented -Pbrowser="CHROME" -PrefreshCoreBridge=20 -PservicesProcessingTime=20 -PmongoProcessingTime=20 -Pus$
+        echo "cp -rf " $AUTOMATION_FILE "/build/reports/cucumber/*.json" $UI_REPORT_FILE"/"${arrIN[$i]}".json"
+        ls $AUTOMATION_FILE/build/reports/cucumber/
+        cp -rf $AUTOMATION_FILE/build/reports/cucumber/*.json $UI_REPORT_FILE/${arrIN[$i]}.json
+        i=$((i+1))
+done < ${IP}

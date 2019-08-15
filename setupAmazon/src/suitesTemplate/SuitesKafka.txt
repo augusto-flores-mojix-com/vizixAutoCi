@@ -1,0 +1,41 @@
+CBRegression01,@CBRegression02 basic,mqtt_ssl_auth
+CBRegression03
+CBRegression04
+CBRegression05,@CBSortExecution
+CBRegression06,@CBScheduledRule,@ServicesReportScript
+CBRegression07
+CBRegression08,@CBRegression09,@CBRegression11
+CBRegression10
+CBRegression12
+CBRegression13
+CBRegression14
+CBRegression15
+CEPTestRule
+BridgesThings
+Services01,@ServicesExpressionSequence
+ServicesTenants
+ServicesServices basic,ftpbridge
+ServicesReportMap,@ServicesModel,@ServicesGateWay,@ServicesReportDetail,@ServicesReportZoneMap
+ServicesReportHistory,@ServicesReportSummary
+ServicesThingSnaphotNormal,@ServicesThingSnaphotMqtt,@ServicesThingSnaphotZoneMessage
+ServicesThingSnaphotDdd
+ServicesThingSnaphotJsRule,@ServicesThingSnaphotTwoUdf
+ServicesThingSnaphotServices
+ServicesReportHistory2,@ServicesReportPageSizeMinusOne
+ZoneDwellFilter basic,starflexbridge
+ServicesSnapshotTTUdf,@Notebook basic,zeppelin
+FTPAcceptance,@BackWards basic,ftpbridge
+UIThings,@UIThingType,@UIUser,@UIShift,@UIZoneGroup,@UIZone,@UITenant basic uiDocker
+UISkinSettings basic uiDocker
+UIOwnerShipLevel basic uiDocker
+UICheckAmp basic uiDocker
+UIZone,@UISchedule,@UIAnalytics,@UIEdgeBoxRule,@UIImportExport basic uiDocker
+ThingTypeUdfConsistency
+Bvt,@CBMultitenant,@ServicesAnalyticsMultiTenant
+BvtStep1,@ServicesGatewayMultiTenant,@ServicesModelMultiTenant basic,ftpbridge
+BvtStep1,@BvtStep7,@ServicesServicesMultiTenant,@ServicesTenantMultiTenant
+BvtStep1,@ServicesConsistencyMultiTenant,@ServicesMultiLevelMultiTenant,@ServicesExpressionMultiTenant,@ServicesThingSnapshotMultiTenant
+BvtStep1,@ServicesThingMultiTenant,@ServicesThingPermissionMultiTenant,@ServicesThingsThingsMultiTenant
+BvtStep1,@ServicesThingTypeMultiTenant,@ServicesThingTypePermissionMultiTenant
+BvtStep1,@ServicesVersioning,@ServicesConnectionVCS*-PversioningBranch=Versioning basic,versioning
+BvtStep1,@ServicesMultiDataRetentionPolicy,@ServicesDataRetentionPolicy

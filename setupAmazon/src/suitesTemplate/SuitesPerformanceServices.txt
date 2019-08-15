@@ -1,0 +1,2 @@
+zones*1*1*0*/test/model/zones/ basic servicesPerformance
+thingsImport*1*1*0*/test/services/importExport/ basic servicesPerformance

@@ -1,0 +1,605 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.31">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.3.4.1"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.3.4.1">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>cloud_type</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>aws</string>
+              <string>azure</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>cloud_image_id</name>
+          <description>aws : ami-038e8a275b69b3012 python shopcx
+aws : ami-47b71938 old image
+azure : FullImageAuto</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>ami-038e8a275b69b3012</string>
+              <string>ami-47b71938</string>
+              <string>FullImageAuto</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>cloud_instance_type</name>
+          <description>aws : t2.xlarge
+aws : t2.large
+aws : t2.2xlarge  (owasp / shopcx)
+azure : Standard_D4_v3</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>t2.xlarge</string>
+              <string>t2.large</string>
+              <string>t2.2xlarge</string>
+              <string>Standard_D4_v3</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>cloud_security_groups</name>
+          <description>aws: sg-2cbc0f52
+azure: automation.vizixcloud.com
+aws : sg-09366e67d25e7fc6d  open ports for browser compatibility</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>sg-2cbc0f52</string>
+              <string>automation.vizixcloud.com</string>
+              <string>sg-09366e67d25e7fc6d</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>cloud_instance_region</name>
+          <description>aws : us-east-1
+azure : eastus</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-east-1</string>
+              <string>eastus</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>cloud_key_name</name>
+          <description>aws : awsqa
+azure : /home/eynar/Desktop/aws_pems/awsqa.pub</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>awsqa</string>
+              <string>/home/eynar/Desktop/aws_pems/awsqa.pub</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>cloud_instance_names</name>
+          <description>name will be join with the number job automatically</description>
+          <defaultValue>CD</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>local_key_pem_path</name>
+          <description>jenkins_cloud : /home/aws_pems/</description>
+          <defaultValue>/home/aws_pems/</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>local_aws_cli_path</name>
+          <description>not necessary for azure (/tmp/)
+jenkins_cloud : /root/.local/bin/</description>
+          <defaultValue>/usr/local/bin</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>local_ips_path_tmp</name>
+          <description></description>
+          <defaultValue>/tmp/ips</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>local_path_report_json</name>
+          <description>jenkins_cloud : /home/localReportAmazon</description>
+          <defaultValue>/home/localReportAmazon</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>automation_branch</name>
+          <description></description>
+          <defaultValue>dev/6.x.x</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>branch_jmeter</name>
+          <description></description>
+          <defaultValue>develop</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>number_of_threads_cb</name>
+          <description></description>
+          <defaultValue>1</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>submit_email</name>
+          <description>[Internal]&lt;ViZix-Core&gt; Regression Functional Test
+[Internal]&lt;Vizix-ShopCX&gt; Regression Functional Test  
+[Internal]&lt;Vizix-Eclipse&gt; Regression Functional Test          
+[OnDemand-NAME]&lt;ViZix-Core&gt; Security OWASP Vulnerability Test
+[OnDemand-NAME]&lt;ViZix-Core&gt;Funcional Test
+[OnDemand-NAME]&lt;ViZix-Core&gt;Regression Functional Test
+[OnDemand-NAME]&lt;ViZix-Core&gt; Browser Compatibility Test</description>
+          <defaultValue>[Internal]&lt;ViZix-Core&gt; Regression Functional Test</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>docker_branch_services</name>
+          <description></description>
+          <defaultValue>dev_6.x.x</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>docker_branch_bridges</name>
+          <description></description>
+          <defaultValue>dev_6.x.x</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>docker_branch_ui</name>
+          <description></description>
+          <defaultValue>dev_6.x.x</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>docker_branch_tools</name>
+          <description></description>
+          <defaultValue>dev_6.x.x</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>docker_microservices</name>
+          <description>configuration-api-devices:dev_6.x.x,configuration-api-languages:dev_6.x.x,dp-asn-auto-engine:dev_6.x.x,dp-instant-event-generation:dev_6.x.x,dp-retroactive-event-generation:dev_6.x.x,red-amqp-servicebus:dev_6.x.x,serialization-api:dev_6.x.x,vizix-api-transformer:dev_6.x.x,vizix-tenant-versioning:dev_6.x.x,report-generator:dev_6.x.x,sysconfig:dev/6.x.x,tag-management:dev_6.x.x,reports:dev_6.x.x,monitoring-api:dev_6.x.x,monitoring-dashboard:dev_6.x.x,epcis-event-generator:canary_6.55.x</description>
+          <defaultValue></defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>were_images_generated</name>
+          <description>0 ----&gt; the images were generated correctly
+1 ----&gt; the image were not generated correctly</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>0</string>
+              <string>1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>popdb_name</name>
+          <description>automation-core ---&gt; Vizix Core
+retail-core-epcis ---&gt; Vizix ShopCX
+retail-core-epcis-eclipse --&gt; Vizix ShopCX Eclipse
+retail-core-epcis-red-red --&gt;  Multitenancy ShopCX and ShopCX
+retail-core-epcis-eclipse-eclipse --&gt;  Multitenancy Eclipse and Eclipse</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>automation-core</string>
+              <string>retail-core-epcis</string>
+              <string>retail-core-epcis-eclipse</string>
+              <string>retail-core-epcis-red-red</string>
+              <string>retail-core-epcis-eclipse-eclipse</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>is_kafka</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>true</string>
+              <string>false</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>tmp_image</name>
+          <description>name will be join with the number job automatically</description>
+          <defaultValue>CDtemporalBVT</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>branch_ci</name>
+          <description>use canary/6.15.x with version before it and the correct funcional suite
+use canary/6.23.x with version from 6.16.0 to 6.23.0 and the correct funcional suite</description>
+          <defaultValue>dev/6.x.x</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>suite_file_functional</name>
+          <description>SuitesKafkaEclipseMult.txt ---&gt; greater or equal than canary/6.52.x  
+SuitesKafkaEclipse.txt --&gt; less than canary/6.52.x
+SuitesKafkaEclipseEclipseMult.txt--&gt; two tenants structure eclipse from canary/6.57.x
+SuitesKafkaRedRedMult.txt--&gt; two tenants strcuture eclipse from canary/6.57.x</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>SuitesKafka.txt</string>
+              <string>SuitesKafkaShopCX.txt</string>
+              <string>SuitesKafkaEclipse.txt</string>
+              <string>SuitesKafkaEclipseMult.txt</string>
+              <string>SuitesKafkaEclipseEclipseMult.txt</string>
+              <string>SuitesKafkaRedRedMult.txt</string>
+              <string>SuitesKafka_to_6.15.txt</string>
+              <string>SuitesKafka_6.16_to_6.23.txt</string>
+              <string>SuitesCbMt.txt</string>
+              <string>SuitesCbMtOracle.txt</string>
+              <string>SuitesPerformanceServices.txt</string>
+              <string>SuitesMigrationCbMt.txt</string>
+              <string>SuitesSecurity.txt</string>
+              <string>SuitesKafkaMysql8.txt</string>
+              <string>SuitesMigrationKafka.txt</string>
+              <string>SuitesUI.txt</string>
+              <string>SuitesTest.txt</string>
+              <string>SuitesBrowserCompatibility.txt</string>
+              <string>custom.txt</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>suite_file_security</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>SuitesSecurity.txt</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>suite_file_migration</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>SuitesMigrationKafka.txt</string>
+              <string>SuitesMigrationCbMt.txt</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>suite_file_performanceServices</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>SuitesPerformanceServices.txt</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>suite_file_performanceBridges</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>SuitesPerformanceCbKafka.txt</string>
+              <string>SuitesPerformanceCbMt.txt</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>suite_file_performanceUI</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>SuitesPerformanceUI.txt</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>InfoServicesCommit</name>
+          <description></description>
+          <defaultValue>empty</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>InfoBridgesCommit</name>
+          <description></description>
+          <defaultValue>empty</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>InfoUICommit</name>
+          <description></description>
+          <defaultValue>empty</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>infoAutorServices</name>
+          <description></description>
+          <defaultValue>empty</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>infoAutorBridges</name>
+          <description></description>
+          <defaultValue>empty</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>infoAutorUI</name>
+          <description></description>
+          <defaultValue>empty</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>instanceToDelivery</name>
+          <description></description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>runNoFunctionalTest</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>false</string>
+              <string>true</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>12</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.63">
+    <script>pipeline {
+    agent any
+    environment { 
+         SETUP_AMAZON=&apos;/home/vizix_repositories/vizix-qa-automation-ci/setupAmazon&apos;
+         SUITES_PATH=&apos;/home/vizix_repositories/vizix-qa-automation-ci/setupAmazon/src/suitesTemplate/&apos;
+         JOB_NAME=&apos;ContinuousDelivery&apos;
+         PUBLIC_IP=&apos;jenkins.vizixcloud.com&apos;
+         TMP_IMG_BVT=&apos;/tmp/imageAwsBvt&apos;
+         TMP_IMG_IDS=&apos;/tmp/imageId&apos;
+         DYNAMIC_IMAGE_ID=&apos;&apos;
+         AWS_VM_NUMBER=&apos;&apos;
+         JOB_REPORT=&apos;ContinuousDeliveryReport&apos;
+         LOGS=&apos;/tmp/ci&apos;
+    }
+    stages {
+        stage(&apos;Generate Image On Docker&apos;) { 
+            steps { 
+                sh &apos;exit ${were_images_generated}&apos; 
+            }
+        }
+        stage(&apos;Installation Test &amp; BVT&apos;){
+            steps {
+                sh &apos;mkdir ${local_path_report_json}/${BUILD_NUMBER}/ &amp;&amp; chmod 777 ${local_path_report_json}/${BUILD_NUMBER}/&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle CreateVirtualMachinesCloud -Pimage_id=${cloud_image_id} -Pnew_vms_number=1 -Pinstance_type=${cloud_instance_type} -Pkey_name=${cloud_key_name} -Psecurity_groups=${cloud_security_groups} -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle WaitVmAreReady -Pnew_vms_number=1 -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetPublicIpFromVirtualMachine -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Pinstance_name=${cloud_instance_names}${BUILD_NUMBER} -Pcloud_cli_path=${local_aws_cli_path} -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle ExecuteAutomationTestRemotly -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Pdocker_branch_services=${docker_branch_services} -Pbranch_automation=${automation_branch} -Pnumber_threads_cb=${number_of_threads_cb} -Pis_setting_env=true -Pdocker_branch_corebridge=${docker_branch_bridges} -Pdocker_branch_ui=${docker_branch_ui} -Ppopdb_name=${popdb_name} -Pis_kafka=${is_kafka} -Pdocker_branch_tools=${docker_branch_tools} -Pbranch_ci=${branch_ci} -Pbranch_jmeter=${branch_jmeter} -Psuite_file=$SUITES_PATH${suite_file_functional} -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Pdocker_microservices=${docker_microservices}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetJsonReports -Pkey_pem_path=${local_key_pem_path} -Plocal_path_report_json=${local_path_report_json}/${BUILD_NUMBER}/ -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                sh &apos;echo &quot;report was copied locally&quot; &amp;&amp; echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                sh &apos;cd ${local_path_report_json}/${BUILD_NUMBER}/ &amp;&amp; for a in $(ls -1 *.tar.gz); do tar -zxvf $a; done&apos;
+            }
+            post {
+            always 
+                {
+                   cucumber buildStatus: &apos;FAILURE&apos;, fileIncludePattern: &apos;*.json&apos;, jsonReportDirectory: &apos;${local_path_report_json}/${BUILD_NUMBER}/&apos;, sortingMethod: &apos;ALPHABETICAL&apos;
+                   sh &apos;cd ${local_path_report_json}/${BUILD_NUMBER}/ &amp;&amp; if [ &quot;$(cat *.json | jq .[].elements[].steps[].result.status | grep -c &quot;failed&quot; )&quot; = &quot;0&quot; ]  &amp;&amp; [ &quot;$(cat *.json | jq .[].elements[].steps[].result.status | grep -c &quot;skipped&quot; )&quot; = &quot;0&quot; ] ; then STATUS=0 &amp;&amp; echo &quot;All Passed&quot; ; else STATUS=1 &amp;&amp; echo &quot;Failed Test !&quot; ; fi &amp;&amp; exit $STATUS&apos;
+            
+                }
+            failure {
+                    sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle RemoveInstancesCreated -Pcloud_cli_path=${local_key_pem_path} -Pkey_pem_path=${local_key_pem_path} -Pinstance_name=${cloud_instance_names}${BUILD_NUMBER} -Pimages_path_tmp=$TMP_IMG_IDS${BUILD_NUMBER}.txt -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Psecurity_groups=${cloud_security_groups}&apos;
+                    sh &apos;rm -rf  /tmp/env.txt&apos;
+                    sh &apos;BODY_EMAIL=$(echo &quot;${docker_microservices},vizix_services:${docker_branch_services},vizix_bridges:${docker_branch_bridges},vizix_ui_composer:${docker_branch_ui},vizix_tools:${docker_branch_tools},&quot; | sed  &quot;s/,/&lt;br&gt;/g&quot;)  &amp;&amp; echo &quot;$BODY_EMAIL &lt;table&gt; &lt;tbody&gt; &lt;tr&gt;&lt;th colspan=&quot;3&quot;&gt;Build Information&lt;/th&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Component&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Autor&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Commit&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Services&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorServices}&lt;/td&gt;&lt;td&gt;${InfoServicesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Bridges&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorBridges}&lt;/td&gt;&lt;td&gt;${InfoBridgesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;UI&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorUI}&lt;/td&gt;&lt;td&gt;${InfoUICommit}&lt;/td&gt;&lt;/tr&gt; &lt;/table&gt;&quot; &gt; /tmp/env${BUILD_NUMBER}.txt&apos;                     
+                    sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle SendEmail -Pstatus_result=&quot;ViZix -BVT is FAILED ! on Setup Environment ${submit_email} -  ViZixServices: ${docker_branch_services}, ViZixBridges:${docker_branch_bridges} ,ViZixUI ${docker_branch_ui} &quot; -PfilePath=&quot;/var/lib/jenkins/jobs/$JOB_NAME/builds/${BUILD_NUMBER}/cucumber-html-reports/overview-features.html&quot; -PreportDetailPath=&quot;http://$PUBLIC_IP/job/$JOB_NAME/${BUILD_NUMBER}/cucumber-html-reports/&quot; -PenvironmentInfo=&quot;/tmp/env${BUILD_NUMBER}.txt&quot; -PkeyVersion=S${docker_branch_services}B${docker_branch_bridges}U${docker_branch_ui}${popdb_name} -Pdescription=&quot;Suite:BVT&quot;&apos;
+                    sh &apos;echo &quot;FAILED !!! Setup Env and Build Verification Test&quot; &amp;&amp; exit 1 &apos;
+                }
+            }
+       }
+        stage(&apos;Generate N Machines&apos;) { 
+            steps { 
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle CreateNewImage -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}${BUILD_NUMBER} -Ptmp_image=${tmp_image}${BUILD_NUMBER} -Ptmp_file_image=$TMP_IMG_BVT${BUILD_NUMBER}.txt -Psecurity_groups=${cloud_security_groups} -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos; 
+                sh &apos;AWS_VM_NUMBER=$(awk &quot;END {print NR}&quot; $SUITES_PATH${suite_file_functional}) &amp;&amp; DYNAMIC_IMAGE_ID=$(cat $TMP_IMG_BVT${BUILD_NUMBER}.txt) &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle CreateVirtualMachinesCloud -Pimage_id=$DYNAMIC_IMAGE_ID -Pnew_vms_number=$AWS_VM_NUMBER -Pinstance_type=${cloud_instance_type} -Pkey_name=${cloud_key_name} -Psecurity_groups=${cloud_security_groups} -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                sh &apos;AWS_VM_NUMBER=$(awk &quot;END {print NR}&quot; $SUITES_PATH${suite_file_functional}) &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle WaitVmAreReady -Pnew_vms_number=$AWS_VM_NUMBER -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetPublicIpFromVirtualMachine -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Pinstance_name=${cloud_instance_names}${BUILD_NUMBER} -Pcloud_cli_path=${local_aws_cli_path} -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+            }
+        }
+        stage(&apos;Automation Functional Test&apos;){
+        parallel  {
+        stage(&apos;Services &amp; Bridges&apos;){
+            steps {
+                sh &apos;rm -rf ${local_path_report_json}/${BUILD_NUMBER}/*.json &amp;&amp; rm -rf ${local_path_report_json}/${BUILD_NUMBER}/*.tar.gz&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle ExecuteAutomationTestRemotly -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Pdocker_branch_services=${docker_branch_services} -Pbranch_automation=${automation_branch} -Pnumber_threads_cb=${number_of_threads_cb} -Pis_setting_env=false -Pdocker_branch_corebridge=${docker_branch_bridges} -Pdocker_branch_ui=${docker_branch_ui} -Ppopdb_name=${popdb_name} -Pis_kafka=${is_kafka} -Pdocker_branch_tools=${docker_branch_tools} -Pbranch_ci=${branch_ci} -Pbranch_jmeter=${branch_jmeter} -Psuite_file=$SUITES_PATH${suite_file_functional} -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Pdocker_microservices=${docker_microservices}&apos;
+                sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetJsonReportsAndDelete -Pkey_pem_path=${local_key_pem_path} -Plocal_path_report_json=${local_path_report_json}/${BUILD_NUMBER}/ -Pip_path_tmp=${local_ips_path_tmp}${BUILD_NUMBER}.txt -Plogs=$LOGS${BUILD_NUMBER}.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Psecurity_groups=${cloud_security_groups}&apos;
+                sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                sh &apos;cd ${local_path_report_json}/${BUILD_NUMBER}/ &amp;&amp; for a in $(ls -1 *.tar.gz); do tar -zxvf $a; done&apos;
+            }
+            post {
+                always {
+                   cucumber buildStatus: &apos;FAILURE&apos;, failedFeaturesNumber: 30, failedScenariosNumber: 30, failedStepsNumber: 100, fileIncludePattern: &apos;*.json&apos;, jsonReportDirectory: &apos;${local_path_report_json}/${BUILD_NUMBER}/&apos;, pendingStepsNumber: 200, skippedStepsNumber: 500, undefinedStepsNumber: 200
+                   sh &apos;rm -rf  /tmp/env${BUILD_NUMBER}.txt&apos;
+                   sh &apos;BODY_EMAIL=$(echo &quot;${docker_microservices},vizix_services:${docker_branch_services},vizix_bridges:${docker_branch_bridges},vizix_ui_composer:${docker_branch_ui},vizix_tools:${docker_branch_tools},&quot; | sed  &quot;s/,/&lt;br&gt;/g&quot;)  &amp;&amp; echo &quot;$BODY_EMAIL &lt;table&gt; &lt;tbody&gt; &lt;tr&gt;&lt;th colspan=&quot;3&quot;&gt;Build Information&lt;/th&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Component&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Autor&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Commit&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Services&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorServices}&lt;/td&gt;&lt;td&gt;${InfoServicesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Bridges&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorBridges}&lt;/td&gt;&lt;td&gt;${InfoBridgesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;UI&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorUI}&lt;/td&gt;&lt;td&gt;${InfoUICommit}&lt;/td&gt;&lt;/tr&gt; &lt;/table&gt;&quot; &gt; /tmp/env${BUILD_NUMBER}.txt&apos; }
+              success {
+                    sh &apos;if [ &quot;${suite_file_functional}&quot; = &quot;SuitesSecurity.txt&quot; ]; then EMAILTYPE=&quot;owasp&quot; &amp;&amp; FILEPATH=&quot;${local_path_report_json}/${BUILD_NUMBER}/cleansummaryOwasp.html&quot; ; else EMAILTYPE=&quot;cucumber&quot; &amp;&amp; FILEPATH=&quot;/var/lib/jenkins/jobs/$JOB_NAME/builds/${BUILD_NUMBER}/cucumber-html-reports/overview-features.html&quot; ; fi &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle SendEmail -Pstatus_result=&quot;${submit_email} [ViZix Services:${docker_branch_services}, ViZix Bridges:${docker_branch_bridges}, ViZix UI ${docker_branch_ui}]&quot; -PfilePath=&quot;$FILEPATH&quot; -PreportDetailPath=&quot;http://$PUBLIC_IP/job/$JOB_NAME/${BUILD_NUMBER}/cucumber-html-reports/&quot; -PenvironmentInfo=&quot;/tmp/env${BUILD_NUMBER}.txt&quot; -PkeyVersion=FS${docker_branch_services}B${docker_branch_bridges}U${docker_branch_ui}${popdb_name} -Pdescription=&quot;Suite:Regression&quot; -PemailType=$EMAILTYPE&apos;
+               
+                 }
+              failure {
+                    sh &apos;if [ &quot;${suite_file_functional}&quot; = &quot;SuitesSecurity.txt&quot; ]; then EMAILTYPE=&quot;owasp&quot; &amp;&amp; FILEPATH=&quot;${local_path_report_json}/${BUILD_NUMBER}/cleansummaryOwasp.html&quot; ; else EMAILTYPE=&quot;cucumber&quot; &amp;&amp; FILEPATH=&quot;/var/lib/jenkins/jobs/$JOB_NAME/builds/${BUILD_NUMBER}/cucumber-html-reports/overview-features.html&quot; ; fi &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle SendEmail -Pstatus_result=&quot;FAILURE! ${submit_email} [ViZix Services:${docker_branch_services}, ViZix Bridges:${docker_branch_bridges} ,ViZix UI ${docker_branch_ui}] FAILURE&quot; -PfilePath=&quot;$FILEPATH&quot; -PreportDetailPath=&quot;http://$PUBLIC_IP/job/$JOB_NAME/${BUILD_NUMBER}/cucumber-html-reports/&quot; -PenvironmentInfo=&quot;/tmp/env${BUILD_NUMBER}.txt&quot; -PkeyVersion=FS${docker_branch_services}B${docker_branch_bridges}U${docker_branch_ui}${popdb_name} -Pdescription=&quot;Suite:Regression&quot; -PemailType=$EMAILTYPE&apos;
+                    sh &apos;echo &quot;FAILED !!! Functional Test has Error in the test , Build is marked as Failure&quot; &amp;&amp; exit 1&apos;
+                 }
+                
+            }
+        }
+        stage(&apos;Web UI&apos; ) {
+                steps {
+                        sh &apos;echo &quot;Running Web UI Test with Services &amp; Bridges Suite&quot;&apos;
+                        sh &apos;sleep 300s&apos;
+                    }
+             }  
+      }
+    }
+        stage(&apos;Automation No-Functional Test&apos;){
+          parallel  {
+             stage(&apos;Migration Test&apos; ) {
+                when {
+                    expression { &apos;pending&apos; != &apos;pending&apos; }
+                    }   
+                steps {
+                        sh &apos;echo &quot;Performance Testing For Migration is Pending ...&quot;&apos;
+                    }
+             }
+             stage(&apos;Vulnerability Test&apos; ) {
+                when {
+                    expression { params.runNoFunctionalTest == &apos;true&apos; }
+                    } 
+                steps {
+                  sh &apos;AWS_VM_NUMBER=$(awk &quot;END {print NR}&quot; $SUITES_PATH${suite_file_security}) &amp;&amp; DYNAMIC_IMAGE_ID=$(cat $TMP_IMG_BVT${BUILD_NUMBER}.txt) &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle CreateVirtualMachinesCloud -Pimage_id=$DYNAMIC_IMAGE_ID -Pnew_vms_number=$AWS_VM_NUMBER -Pinstance_type=${cloud_instance_type} -Pkey_name=${cloud_key_name} -Psecurity_groups=${cloud_security_groups} -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}OWASP${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}OWASP.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                  sh &apos;AWS_VM_NUMBER=$(awk &quot;END {print NR}&quot; $SUITES_PATH${suite_file_security}) &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle WaitVmAreReady -Pnew_vms_number=$AWS_VM_NUMBER -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}OWASP${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}OWASP.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                  sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetPublicIpFromVirtualMachine -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}OWASP${BUILD_NUMBER}.txt -Pinstance_name=${cloud_instance_names}OWASP${BUILD_NUMBER} -Pcloud_cli_path=${local_aws_cli_path} -Plogs=$LOGS${BUILD_NUMBER}OWASP.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                  sh &apos;mkdir ${local_path_report_json}/${BUILD_NUMBER}/OWASP/ &amp;&amp; chmod 777 ${local_path_report_json}/${BUILD_NUMBER}/OWASP/&apos;
+                  sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle ExecuteAutomationTestRemotly -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}OWASP${BUILD_NUMBER}.txt -Pdocker_branch_services=${docker_branch_services} -Pbranch_automation=${automation_branch} -Pnumber_threads_cb=${number_of_threads_cb} -Pis_setting_env=false -Pdocker_branch_corebridge=${docker_branch_bridges} -Pdocker_branch_ui=${docker_branch_ui} -Ppopdb_name=${popdb_name} -Pis_kafka=${is_kafka} -Pdocker_branch_tools=${docker_branch_tools} -Pbranch_ci=${branch_ci} -Pbranch_jmeter=${branch_jmeter} -Psuite_file=$SUITES_PATH${suite_file_security} -Plogs=$LOGS${BUILD_NUMBER}OWASP.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Pdocker_microservices=${docker_microservices}&apos;
+                  sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                  sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetJsonReportsAndDelete -Pkey_pem_path=${local_key_pem_path} -Plocal_path_report_json=${local_path_report_json}/${BUILD_NUMBER}/OWASP/ -Pip_path_tmp=${local_ips_path_tmp}OWASP${BUILD_NUMBER}.txt -Plogs=$LOGS${BUILD_NUMBER}OWASP.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Psecurity_groups=${cloud_security_groups}&apos;
+                  sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                  sh &apos;cd ${local_path_report_json}/${BUILD_NUMBER}/OWASP/ &amp;&amp; for a in $(ls -1 *.tar.gz); do tar -zxvf $a; done&apos;
+               }
+                post {
+                always {
+                  
+                    sh &apos;rm -rf  /tmp/env${BUILD_NUMBER}.txt&apos;
+                    sh &apos;echo &quot;&lt;table&gt; &lt;tbody&gt; &lt;tr&gt;&lt;th colspan=&quot;3&quot;&gt;Build Information&lt;/th&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Component&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Autor&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Commit&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Services&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorServices}&lt;/td&gt;&lt;td&gt;${InfoServicesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Bridges&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorBridges}&lt;/td&gt;&lt;td&gt;${InfoBridgesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;UI&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorUI}&lt;/td&gt;&lt;td&gt;${InfoUICommit}&lt;/td&gt;&lt;/tr&gt; &lt;/table&gt;&quot; &gt; /tmp/env${BUILD_NUMBER}.txt&apos;
+                    build job: &quot;$JOB_REPORT&quot;, parameters: [[$class: &apos;StringParameterValue&apos;, name: &apos;reportDirectory&apos;, value: &quot;${local_path_report_json}/${BUILD_NUMBER}/OWASP/&quot;],
+							 [$class: &apos;StringParameterValue&apos;, name: &apos;statusResult&apos;, value: &quot;[Internal]NonFunctional- Security OWASP Vulnerability Test [ViZix Services:${docker_branch_services}, ViZix Bridges:${docker_branch_bridges} , ViZix UI ${docker_branch_ui}]&quot;],
+							 [$class: &apos;StringParameterValue&apos;, name: &apos;envInformation&apos;, value: &quot;/tmp/env${BUILD_NUMBER}.txt&quot;],
+							 [$class: &apos;StringParameterValue&apos;, name: &apos;keyVersion&apos;, value: &quot;S${docker_branch_services}B${docker_branch_bridges}U${docker_branch_ui}&quot;],
+							 [$class: &apos;StringParameterValue&apos;, name: &apos;descriptionSuite&apos;, value: &quot;Suite:Vulnerability&quot;]
+                        ]
+               }
+              }
+             }
+             stage(&apos;Performance Services&apos; ) {
+                  when {
+                    expression { params.runNoFunctionalTest == &apos;pending&apos; }
+                    } 
+                 steps {
+                  sh &apos;AWS_VM_NUMBER=$(awk &quot;END {print NR}&quot; $SUITES_PATH${suite_file_performanceServices}) &amp;&amp; DYNAMIC_IMAGE_ID=$(cat $TMP_IMG_BVT${BUILD_NUMBER}.txt) &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle CreateVirtualMachinesCloud -Pimage_id=$DYNAMIC_IMAGE_ID -Pnew_vms_number=$AWS_VM_NUMBER -Pinstance_type=${cloud_instance_type} -Pkey_name=${cloud_key_name} -Psecurity_groups=${cloud_security_groups} -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}JMETER${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}JMETER.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                  sh &apos;AWS_VM_NUMBER=$(awk &quot;END {print NR}&quot; $SUITES_PATH${suite_file_performanceServices}) &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle WaitVmAreReady -Pnew_vms_number=$AWS_VM_NUMBER -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}JMETER${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}JMETER.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                  sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetPublicIpFromVirtualMachine -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}JMETER${BUILD_NUMBER}.txt -Pinstance_name=${cloud_instance_names}JMETER${BUILD_NUMBER} -Pcloud_cli_path=${local_aws_cli_path} -Plogs=$LOGS${BUILD_NUMBER}JMETER.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                  sh &apos;mkdir ${local_path_report_json}/${BUILD_NUMBER}/JMETER/ &amp;&amp; chmod 777 ${local_path_report_json}/${BUILD_NUMBER}/JMETER/&apos;
+                  sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle ExecuteAutomationTestRemotly -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}JMETER${BUILD_NUMBER}.txt -Pdocker_branch_services=${docker_branch_services} -Pbranch_automation=${automation_branch} -Pnumber_threads_cb=${number_of_threads_cb} -Pis_setting_env=false -Pdocker_branch_corebridge=${docker_branch_bridges} -Pdocker_branch_ui=${docker_branch_ui} -Ppopdb_name=${popdb_name} -Pis_kafka=${is_kafka} -Pdocker_branch_tools=${docker_branch_tools} -Pbranch_ci=${branch_ci} -Pbranch_jmeter=${branch_jmeter} -Psuite_file=$SUITES_PATH${suite_file_performanceServices} -Plogs=$LOGS${BUILD_NUMBER}JMETER.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Pdocker_microservices=${docker_microservices}&apos;
+                  sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                  sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetJsonReportsAndDelete -Pkey_pem_path=${local_key_pem_path} -Plocal_path_report_json=${local_path_report_json}/${BUILD_NUMBER}/JMETER/ -Pip_path_tmp=${local_ips_path_tmp}JMETER${BUILD_NUMBER}.txt -Plogs=$LOGS${BUILD_NUMBER}JMETER.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Psecurity_groups=${cloud_security_groups}&apos;
+                  sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                  sh &apos;cd ${local_path_report_json}/${BUILD_NUMBER}/JMETER/ &amp;&amp; for a in $(ls -1 *.tar.gz); do tar -zxvf $a; done&apos;
+               }
+        // Send Email is disable while summary for this suite is created       
+        //         post {
+        //         always {
+        //             sh &apos;rm -rf  /tmp/env${BUILD_NUMBER}.txt&apos;
+        //             sh &apos;echo &quot;&lt;table&gt; &lt;tbody&gt; &lt;tr&gt;&lt;th colspan=&quot;3&quot;&gt;Build Information&lt;/th&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Component&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Autor&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Commit&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Services&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorServices}&lt;/td&gt;&lt;td&gt;${InfoServicesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Bridges&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorBridges}&lt;/td&gt;&lt;td&gt;${InfoBridgesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;UI&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorUI}&lt;/td&gt;&lt;td&gt;${InfoUICommit}&lt;/td&gt;&lt;/tr&gt; &lt;/table&gt;&quot; &gt; /tmp/env${BUILD_NUMBER}.txt&apos;
+        //             build job: &quot;$JOB_REPORT&quot;, parameters: [[$class: &apos;StringParameterValue&apos;, name: &quot;reportDirectory&apos;, value: &apos;${local_path_report_json}/${BUILD_NUMBER}/JMETER/&quot;],
+		//				   [$class: &apos;StringParameterValue&apos;, name: &apos;statusResult&apos;, value: &quot;[Internal]NonFunctional-PerformancceServices Services:${docker_branch_services}, Bridges:${docker_branch_bridges} ,UI ${docker_branch_ui}&quot;],
+		//				   [$class: &apos;StringParameterValue&apos;, name: &apos;envInformation&apos;, value: &quot;/tmp/env${BUILD_NUMBER}.txt&quot;],
+		//				   [$class: &apos;StringParameterValue&apos;, name: &apos;keyVersion&apos;, value: &quot;S${docker_branch_services}B${docker_branch_bridges}U${docker_branch_ui}&quot;],
+		//				   [$class: &apos;StringParameterValue&apos;, name: &apos;descriptionSuite&apos;, value: &quot;Suite:PerformanceServices&quot;]
+        //               ]
+        //       }
+        //       }
+             }
+             stage(&apos;Performance Bridges&apos; ) {
+                when {
+                    expression { &apos;pending&apos; != &apos;pending&apos; }
+                    }   
+                steps {
+                        sh &apos;echo &quot;Performance Testing For Bridges is Pending ...&quot;&apos;
+                    }
+             }
+             stage(&apos;Performance UI&apos; ) {
+                  when {
+                    expression { params.runNoFunctionalTest == &apos;pending&apos; }
+                    } 
+                  steps {
+                  sh &apos;AWS_VM_NUMBER=$(awk &quot;END {print NR}&quot; $SUITES_PATH${suite_file_performanceUI}) &amp;&amp; DYNAMIC_IMAGE_ID=$(cat $TMP_IMG_BVT${BUILD_NUMBER}.txt) &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle CreateVirtualMachinesCloud -Pimage_id=$DYNAMIC_IMAGE_ID -Pnew_vms_number=$AWS_VM_NUMBER -Pinstance_type=${cloud_instance_type} -Pkey_name=${cloud_key_name} -Psecurity_groups=${cloud_security_groups} -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}UI${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}UI.log&apos;
+                  sh &apos;AWS_VM_NUMBER=$(awk &quot;END {print NR}&quot; $SUITES_PATH${suite_file_performanceUI}) &amp;&amp; cd $SETUP_AMAZON &amp;&amp; gradle WaitVmAreReady -Pnew_vms_number=$AWS_VM_NUMBER -Pcloud_cli_path=${local_aws_cli_path} -Pinstance_name=${cloud_instance_names}UI${BUILD_NUMBER} -Plogs=$LOGS${BUILD_NUMBER}UI.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                  sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetPublicIpFromVirtualMachine -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}UI${BUILD_NUMBER}.txt -Pinstance_name=${cloud_instance_names}UI${BUILD_NUMBER} -Pcloud_cli_path=${local_aws_cli_path} -Plogs=$LOGS${BUILD_NUMBER}UI.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region}&apos;
+                  sh &apos;mkdir ${local_path_report_json}/${BUILD_NUMBER}/UI/ &amp;&amp; chmod 777 ${local_path_report_json}/${BUILD_NUMBER}/UI/&apos;
+                  sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle ExecuteAutomationTestRemotly -Pkey_pem_path=${local_key_pem_path} -Pip_path_tmp=${local_ips_path_tmp}UI${BUILD_NUMBER}.txt -Pdocker_branch_services=${docker_branch_services} -Pbranch_automation=${automation_branch} -Pnumber_threads_cb=${number_of_threads_cb} -Pis_setting_env=false -Pdocker_branch_corebridge=${docker_branch_bridges} -Pdocker_branch_ui=${docker_branch_ui} -Ppopdb_name=${popdb_name} -Pis_kafka=${is_kafka} -Pdocker_branch_tools=${docker_branch_tools} -Pbranch_ci=${branch_ci} -Pbranch_jmeter=${branch_jmeter} -Psuite_file=$SUITES_PATH${suite_file_performanceUI} -Plogs=$LOGS${BUILD_NUMBER}UI.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Pdocker_microservices=${docker_microservices}&apos;
+                  sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                  sh &apos;cd $SETUP_AMAZON &amp;&amp; gradle GetJsonReportsAndDelete -Pkey_pem_path=${local_key_pem_path} -Plocal_path_report_json=${local_path_report_json}/${BUILD_NUMBER}/UI/ -Pip_path_tmp=${local_ips_path_tmp}UI${BUILD_NUMBER}.txt -Plogs=$LOGS${BUILD_NUMBER}UI.log -Pcloud_type=${cloud_type} -Pinstance_region=${cloud_instance_region} -Psecurity_groups=${cloud_security_groups}&apos;
+                  sh &apos;echo &quot;waiting .....&quot; &amp;&amp; sleep 30&apos;
+                  sh &apos;cd ${local_path_report_json}/${BUILD_NUMBER}/UI/ &amp;&amp; for a in $(ls -1 *.tar.gz); do tar -zxvf $a; done&apos;
+               }
+                post {
+                always {
+                  
+                    sh &apos;rm -rf  /tmp/env${BUILD_NUMBER}.txt&apos;
+                    sh &apos;echo &quot;&lt;table&gt; &lt;tbody&gt; &lt;tr&gt;&lt;th colspan=&quot;3&quot;&gt;Build Information&lt;/th&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Component&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Autor&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Commit&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Services&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorServices}&lt;/td&gt;&lt;td&gt;${InfoServicesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;Bridges&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorBridges}&lt;/td&gt;&lt;td&gt;${InfoBridgesCommit}&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td&gt;&lt;b&gt;UI&lt;/b&gt;&lt;/td&gt;&lt;td&gt;${infoAutorUI}&lt;/td&gt;&lt;td&gt;${InfoUICommit}&lt;/td&gt;&lt;/tr&gt; &lt;/table&gt;&quot; &gt; /tmp/env${BUILD_NUMBER}.txt&apos;
+                    build job: &quot;$JOB_REPORT&quot;, parameters: [[$class: &apos;StringParameterValue&apos;, name: &apos;reportDirectory&apos;, value: &quot;${local_path_report_json}/${BUILD_NUMBER}/UI/&quot;],
+							 [$class: &apos;StringParameterValue&apos;, name: &apos;statusResult&apos;, value: &quot;[Internal]NonFunctional-PerformanceWebUI [ViZix Services:${docker_branch_services}, ViZix Bridges:${docker_branch_bridges}, ViZix UI ${docker_branch_ui}]&quot;],
+							 [$class: &apos;StringParameterValue&apos;, name: &apos;envInformation&apos;, value: &quot;/tmp/env${BUILD_NUMBER}.txt&quot;],
+							 [$class: &apos;StringParameterValue&apos;, name: &apos;keyVersion&apos;, value: &quot;S${docker_branch_services}B${docker_branch_bridges}U${docker_branch_ui}&quot;],
+							 [$class: &apos;StringParameterValue&apos;, name: &apos;descriptionSuite&apos;, value: &quot;Suite:PerformanceWebUI&quot;]
+                        ]
+               }
+              }
+             }
+          }
+        } 
+        stage(&apos;Delivery(POC)&apos;){
+            parallel  {
+               stage(&apos;Production A&apos;) {
+                    when {
+                    expression { params.instanceToDelivery == &apos;pending&apos; }
+                    }   
+                    steps {
+                         sh &apos;echo &quot;pending..&quot;&apos;
+                    }
+                }
+               stage(&apos;SandBox QA1&apos;) {
+                    when {
+                    expression { &apos;pending&apos; != &apos;pending&apos; }
+                    }   
+                    steps {
+                        sh &apos;echo &quot;pending..&quot;&apos;
+                    }
+                }
+                stage(&apos;SandBox QA2&apos;) {
+                    when {
+                    expression { &apos;pending&apos; != &apos;pending&apos; }
+                    }   
+                    steps {
+                         sh &apos;echo &quot;pending..&quot;&apos;
+                    }
+                }
+           }
+        }
+    }
+}</script>
+    <sandbox>false</sandbox>
+  </definition>
+  <triggers/>
+  <authToken>DevOps123</authToken>
+  <disabled>false</disabled>
+</flow-definition>

@@ -1,0 +1,59 @@
+version: "2.3"
+
+networks:
+  default:
+    external:
+      name: vizix_iot
+
+services:
+
+  vizix-tools:
+    image: mojix/vizix-tools:develop
+    command: configure
+    environment:
+
+    #Installation Variables
+      VIZIX_POPDB: "true"
+      VIZIX_POPDB_OPTION: AutomationKafka
+      VIZIX_POPDB_TENANT_CODE: tenant
+      VIZIX_POPDB_CREATE_TENANT: "true"
+      VIZIX_POPDB_CLEAN: "true"
+
+    #Kafka Enabled
+      VIZIX_KAFKA_CREATE_TOPICS: "true"
+      VIZIX_KAFKA_LOAD_CACHE: "true"
+      VIZIX_KAFKA_ENABLED: "true"
+      VIZIX_KAFKA_DATA_PARTITIONS: 64
+      VIZIX_KAFKA_DATA_RETENTION_BYTES: 943718400
+      # VIZIX_KAFKA_DATA_RETENTION_MS:
+      VIZIX_KAFKA_DATA_REPLICA_FACTOR: 1
+      VIZIX_KAFKA_ZOOKEEPER: zookeeper:2181
+      VIZIX_KAFKA_SERVERS: kafka:9092
+
+    #ENV Variables to Publish Kafka Site Config
+
+    #MONGODB Parameters
+      VIZIX_MONGO_PRIMARY: mongo:27017
+      VIZIX_MONGO_DB: riot_main
+      VIZIX_MONGO_USERNAME: admin
+      VIZIX_MONGO_PASSWORD: control123!
+    #MQTT Broker Parameters
+      VIZIX_MQTT_HOST: mosquitto
+
+    #SQLDB Parameters
+      VIZIX_DB_DRIVER: com.mysql.jdbc.Driver
+      VIZIX_DB_DIALECT: org.hibernate.dialect.MySQLDialect
+      VIZIX_DB_DATABASE: riot_main
+      VIZIX_DB_PASSWORD: control123!
+      VIZIX_AUTHENTICATION_MODE: nativeAuthentication
+      VIZIX_CONNECTION_URL: jdbc:mysql://mysql:3306/riot_main?useSSL=false
+
+    #SERVICES Connection
+      VIZIX_API_PORT: 80
+      VIZIX_API_HOST: services
+      VIZIX_API_KEY: 7B4BCCDC
+      VIZIX_API_PATH: /riot-core-services
+
+    #HAZELCAST Parameters
+      VIZIX_HAZELCAST_DISTRIBUTED_ENABLE: "true"
+      VIZIX_HAZELCAST_NATIVE_CLIENT_ADDRESS: hazelcast

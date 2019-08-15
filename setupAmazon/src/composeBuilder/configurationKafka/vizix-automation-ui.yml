@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+
+  selenium-hub:
+    hostname: selenium-hub
+    container_name: selenium-hub
+    image: selenium/hub
+    ports:
+    - 4444:4444
+
+  chrome:
+    hostname: chrome
+    container_name: chrome
+    image: selenium/node-chrome-debug
+    ports:
+    - 5900:5900
+
+    links:
+    - selenium-hub:hub
+    volumes:
+    - /dev/shm:/dev/shm
+    - /tmp:/tmp
+    depends_on:
+      - selenium-hub
+    environment:
+      HUB_HOST: hub
+
+  owasp:
+    hostname: owasp
+    container_name: owasp
+    image: owasp/zap2docker-weekly
+    command: zap.sh -daemon -host 0.0.0.0 -port 8888 -config api.disablekey=true -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+    ports:
+     - 8888:8888

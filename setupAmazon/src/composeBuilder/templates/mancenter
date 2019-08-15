@@ -1,0 +1,16 @@
+
+
+
+  mancenter:
+    hostname: mancenter
+    container_name: mancenter
+    restart: always
+    hostname: mancenter
+    image: mojix/vizix-hc-monitor:feature_VIZIX-9772_improveServicesConcurrency
+    ports:
+      - 8888:8080
+    environment:
+      MEM_XMS: 512m
+      MEM_XMX: 1g
+      VIZIX_HAZELCAST_PUBLIC_ADDRESS: hazelcast
+      VIZIX_HAZELCAST_MEMBER_LIST: hazelcast

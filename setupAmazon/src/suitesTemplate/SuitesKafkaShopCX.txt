@@ -1,0 +1,7 @@
+StatusAPI,@StateMachineAPI*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-POrganizationShopCX=RED*-Puser=REDroot1 basic,shopcx
+ProductAPI,@EpcisPublishAPI,@EpcisSearchAPI,@SettingStatuses*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-POrganizationShopCX=RED*-Puser=REDroot1 basic,shopcx
+e2eAPI,@aggregatesAPI,@Configuration,@SerializationAPI,@ProductRecommendationAPI*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-POrganizationShopCX=RED*-Puser=REDroot1 basic,shopcx
+Location,@ConfigurationRules,@ConfigurationAttributes,@ConfigurationLanguages,@Fixture,@InfraDevices,@InfraPovs,@InfraSettings*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-POrganizationShopCX=RED*-Puser=REDroot1 basic,shopcx
+SupplyChain*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-POrganizationShopCX=RED*-Puser=REDroot1 basic,shopcx
+SysConfig*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=false*-PisUsingAutomationPopDb=false*-POrganizationShopCX=RED basic,shopcx
+EventGenerator*-Pnocategory=~@Eclipse*-PisBasicAuthForShopCX=false*-PisUsingAutomationPopDb=false*-POrganizationShopCX=RED*-PcleanAllEntities=false core_epcis_event_generator_basic,cxi_epcis_event_generator,cxi_epcis_services_kafka,mysql,shopcx

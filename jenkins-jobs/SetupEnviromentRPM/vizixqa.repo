@@ -1,0 +1,5 @@
+[vizixqa] 
+name=vizixqa 
+baseurl=http://qamojix:q4m0j1x@vizixrepo.mojix.com/test/ViZix/main/4 
+gpgcheck=0 
+enabled=0 

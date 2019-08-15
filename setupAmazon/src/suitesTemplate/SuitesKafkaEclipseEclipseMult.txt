@@ -1,0 +1,6 @@
+EclipseAssociation,@EclipseReassociation,@tagManagementFtp*-Pnocategory=@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-PprotocolFtp=ftp*-PcleanAllEntities=false basic,eclipseMult multitenancyEclipse
+SupplyChain,@StatusAPI*-Pnocategory=@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-PprotocolFtp=ftp*-PcleanAllEntities=false basic,eclipseMult multitenancyEclipse
+TagAuth,@EpcisPublishAPI,@DigitalSignature*-Pnocategory=@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-PprotocolFtp=ftp*-PcleanAllEntities=false basic,eclipseMult multitenancyEclipse
+EclipseAuthentication*-Pnocategory=@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-PprotocolFtp=ftp*-PcleanAllEntities=false basic,eclipseMult multitenancyEclipse
+TechnicalErrorConnectionTnT*-Pnocategory=@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-PprotocolFtp=ftp*-PcleanAllEntities=false basic,eclipseMult_ntag multitenancyEclipse
+EclipseE2E*-Pnocategory=@Eclipse*-PisBasicAuthForShopCX=true*-PisUsingAutomationPopDb=false*-PprotocolFtp=ftp*-PcleanAllEntities=false basic,eclipseMult multitenancyEclipse

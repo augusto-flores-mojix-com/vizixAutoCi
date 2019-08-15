@@ -1,0 +1,9 @@
+
+  starflexControlApp:
+      restart: always
+      hostname: starflexcontrolapp
+      image: ${BRIDGES}
+      environment:
+        VIZIX_BRIDGE_TYPE: starflexcontrolapp
+        VIZIX_KAFKA_CODE: starflex
+        VIZIX_KAFKA_SERVERS: ${KAFKA_ADDRESS}:9092

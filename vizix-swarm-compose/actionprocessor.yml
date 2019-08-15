@@ -1,0 +1,26 @@
+version: "3.3"
+
+networks:
+  iot:
+    driver: overlay
+    attachable: true
+
+services:
+
+  actionprocessor:
+    image: mojix/riot-core-bridges:develop
+#    image: ${BRIDGES}
+#    image: mojix/riot-core-bridges:feature_perryEllis
+    environment:
+      VIZIX_BRIDGE_TYPE: actionprocessor
+      VIZIX_KAFKA_SERVERS: kafka:9092
+      VIZIX_MQTTHOST: mosquitto
+      VIZIX_K2M_MQTTHOST: mosquitto
+    volumes:
+      - /data/actionprocessor-data:/var/vizix
+    networks:
+      - iot
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.actionprocessor == true

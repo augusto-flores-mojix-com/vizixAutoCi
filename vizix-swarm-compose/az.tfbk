@@ -1,0 +1,555 @@
+terraform {
+  required_version = "> 0.10.8"
+}
+
+provider "aws" {
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
+  region     = "${var.aws_region}"
+}
+
+#
+# =================== Manager =======================
+#
+
+resource "aws_instance" "Manager" {
+  ami = "${var.aws_ami}"
+  instance_type = "${var.instance_type}"
+  key_name = "${var.aws_key_name}"
+  security_groups = "${var.aws_security_groups}"
+
+  tags {
+    Name = "${var.name}"
+  }
+
+  # Provisioning
+
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+    private_key = "${file(var.private_key_path)}"
+    timeout = "5m"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/daemon.json"
+    destination = "/tmp/daemon.json"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/daemon.json /etc/docker/daemon.json",
+      "sudo groupadd docker",
+      "sudo usermod -aG docker $USER",
+    ]
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo systemctl daemon-reload",
+      "sudo systemctl stop docker",
+      "sudo rm -rf /var/lib/docker",
+      "sudo systemctl start docker",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /data/zookeeper/data /data/zookeeper/datalog /data/mysql /data/mongo /data/kafka /data/endorsed /data/rulesprocessor-data /data/mongoinjector-data /data/transformbridge-data /data/k2m-data /data/prometheus /data/grafana /data/actionprocessor-data",
+      "sudo mkdir -p /data/db /var/lib/mysql /datalog /usr/local/tomcat/endorsed /var/vizix/rulesProcessor /var/vizix/mongoIngestor /var/vizix",
+      "sudo docker swarm init --advertise-addr ${aws_instance.Manager.private_ip} --listen-addr ${aws_instance.Manager.private_ip} > /tmp/joinCommand.txt",
+      "sudo docker service create   --name=viz   --publish=8001:8080/tcp --constraint=node.role==manager --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock dockersamples/visualizer",
+      "sudo grep 'join --token' /tmp/joinCommand.txt > /tmp/join.txt"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/core.yml"
+    destination = "/tmp/core.yml"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/services.yml"
+    destination = "/tmp/services.yml"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/stream-apps.yml"
+    destination = "/tmp/stream-apps.yml"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/vizix-tools.yml"
+    destination = "/tmp/vizix-tools.yml"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/actionprocessor.yml"
+    destination = "/tmp/actionprocessor.yml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo cp -rf /tmp/core.yml /home/ubuntu/vizix_repositories",
+      "sudo cp -rf /tmp/services.yml /home/ubuntu/vizix_repositories",
+      "sudo sed -i 's/\\      VIZIX_API_HOST: 34.229.40.160:8080/\\      VIZIX_API_HOST: ${aws_instance.Manager.private_ip}:8080/g' /home/ubuntu/vizix_repositories/services.yml",
+      "sudo cp -rf /tmp/stream-apps.yml /home/ubuntu/vizix_repositories",
+      "sudo cp -rf /tmp/vizix-tools.yml /home/ubuntu/vizix_repositories",
+      "sudo cp -rf /tmp/actionprocessor.yml /home/ubuntu/vizix_repositories"
+    ]
+  }
+}
+
+#
+# =================== DataBase Server =======================
+#
+
+resource "aws_instance" "DataBase" {
+  ami = "${var.aws_ami}"
+  instance_type = "${var.instance_type}"
+  key_name = "${var.aws_key_name}"
+  security_groups = "${var.aws_security_groups}"
+
+  tags {
+    Name = "${var.name}"
+  }
+
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+    private_key = "${file(var.private_key_path)}"
+    timeout = "5m"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/daemon.json"
+    destination = "/tmp/daemon.json"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/daemon.json /etc/docker/daemon.json",
+      "sudo groupadd docker",
+      "sudo usermod -aG docker $USER",
+    ]
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo systemctl daemon-reload",
+      "sudo systemctl stop docker",
+      "sudo rm -rf /var/lib/docker",
+      "sudo systemctl start docker",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /data/zookeeper/data /data/zookeeper/datalog /data/mysql /data/mongo /data/kafka /data/endorsed /data/rulesprocessor-data /data/mongoinjector-data /data/transformbridge-data /data/k2m-data /data/prometheus /data/grafana /data/actionprocessor-data",
+      "sudo mkdir -p /data/db /var/lib/mysql /datalog /usr/local/tomcat/endorsed /var/vizix/rulesProcessor /var/vizix/mongoIngestor /var/vizix"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/monitoring.yml"
+    destination = "/tmp/monitoring.yml"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/prometheus.yml"
+    destination = "/tmp/prometheus.yml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/prometheus.yml /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/monitoring.yml /home/ubuntu/vizix_repositories/monitoring/"
+    ]
+  }
+}
+
+#
+# =================== Kafka Server =======================
+#
+
+resource "aws_instance" "Kafka" {
+  ami = "${var.aws_ami}"
+  instance_type = "${var.instance_type}"
+  key_name = "${var.aws_key_name}"
+  security_groups = "${var.aws_security_groups}"
+
+  tags {
+    Name = "${var.name}"
+  }
+
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+    private_key = "${file(var.private_key_path)}"
+    timeout = "5m"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/daemon.json"
+    destination = "/tmp/daemon.json"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/daemon.json /etc/docker/daemon.json",
+      "sudo groupadd docker",
+      "sudo usermod -aG docker $USER",
+    ]
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo systemctl daemon-reload",
+      "sudo systemctl stop docker",
+      "sudo rm -rf /var/lib/docker",
+      "sudo systemctl start docker",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /data/zookeeper/data /data/zookeeper/datalog /data/mysql /data/mongo /data/kafka /data/endorsed /data/rulesprocessor-data /data/mongoinjector-data /data/transformbridge-data /data/k2m-data /data/prometheus /data/grafana /data/actionprocessor-data",
+      "sudo mkdir -p /data/db /var/lib/mysql /datalog /usr/local/tomcat/endorsed /var/vizix/rulesProcessor /var/vizix/mongoIngestor /var/vizix"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/monitoring.yml"
+    destination = "/tmp/monitoring.yml"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/prometheus.yml"
+    destination = "/tmp/prometheus.yml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/prometheus.yml /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/monitoring.yml /home/ubuntu/vizix_repositories/monitoring/"
+    ]
+  }
+}
+
+#
+# =================== Rulesprocessor 1 Server =======================
+#
+
+resource "aws_instance" "Rulesprocessor1" {
+  ami = "${var.aws_ami}"
+  instance_type = "${var.instance_type}"
+  key_name = "${var.aws_key_name}"
+  security_groups = "${var.aws_security_groups}"
+
+  tags {
+    Name = "${var.name}"
+  }
+
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+    private_key = "${file(var.private_key_path)}"
+    timeout = "5m"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/daemon.json"
+    destination = "/tmp/daemon.json"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/daemon.json /etc/docker/daemon.json",
+      "sudo groupadd docker",
+      "sudo usermod -aG docker $USER",
+    ]
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo systemctl daemon-reload",
+      "sudo systemctl stop docker",
+      "sudo rm -rf /var/lib/docker",
+      "sudo systemctl start docker",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /data/zookeeper/data /data/zookeeper/datalog /data/mysql /data/mongo /data/kafka /data/endorsed /data/rulesprocessor-data /data/mongoinjector-data /data/transformbridge-data /data/k2m-data /data/prometheus /data/grafana /data/actionprocessor-data",
+      "sudo mkdir -p /data/db /var/lib/mysql /datalog /usr/local/tomcat/endorsed /var/vizix/rulesProcessor /var/vizix/mongoIngestor /var/vizix"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/monitoring.yml"
+    destination = "/tmp/monitoring.yml"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/prometheus.yml"
+    destination = "/tmp/prometheus.yml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/prometheus.yml /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/monitoring.yml /home/ubuntu/vizix_repositories/monitoring/"
+    ]
+  }
+}
+
+//#
+//# =================== Rulesprocessor 2 Server =======================
+//#
+//
+//resource "aws_instance" "Rulesprocessor2" {
+//  ami = "${var.aws_ami}"
+//  instance_type = "${var.instance_type}"
+//  key_name = "${var.aws_key_name}"
+//  security_groups = "${var.aws_security_groups}"
+//
+//  tags {
+//    Name = "${var.name}"
+//  }
+//
+//  connection {
+//    type = "ssh"
+//    user = "ubuntu"
+//    private_key = "${file(var.private_key_path)}"
+//    timeout = "5m"
+//  }
+//
+//  provisioner "file" {
+//    source      = "${path.module}/daemon.json"
+//    destination = "/tmp/daemon.json"
+//  }
+//
+//  provisioner "remote-exec" {
+//    inline = [
+//      "sudo mv /tmp/daemon.json /etc/docker/daemon.json",
+//      "sudo groupadd docker",
+//      "sudo usermod -aG docker $USER",
+//    ]
+//  }
+//  provisioner "remote-exec" {
+//    inline = [
+//      "sudo systemctl daemon-reload",
+//      "sudo systemctl stop docker",
+//      "sudo rm -rf /var/lib/docker",
+//      "sudo systemctl start docker",
+//    ]
+//  }
+//
+//  provisioner "remote-exec" {
+//    inline = [
+//      "sudo mkdir -p /data/zookeeper/data /data/zookeeper/datalog /data/mysql /data/mongo /data/kafka /data/endorsed /data/rulesprocessor-data /data/mongoinjector-data /data/transformbridge-data /data/k2m-data /data/prometheus /data/grafana /data/actionprocessor-data",
+//      "sudo mkdir -p /data/db /var/lib/mysql /datalog /usr/local/tomcat/endorsed /var/vizix/rulesProcessor /var/vizix/mongoIngestor /var/vizix"
+//    ]
+//  }
+//
+//  provisioner "file" {
+//    source      = "${path.module}/monitoring/monitoring.yml"
+//    destination = "/tmp/monitoring.yml"
+//  }
+//
+//  provisioner "file" {
+//    source      = "${path.module}/monitoring/prometheus.yml"
+//    destination = "/tmp/prometheus.yml"
+//  }
+//
+//  provisioner "remote-exec" {
+//    inline = [
+//      "sudo mkdir -p /home/ubuntu/vizix_repositories/monitoring/",
+//      "sudo cp -rf /tmp/prometheus.yml /home/ubuntu/vizix_repositories/monitoring/",
+//      "sudo cp -rf /tmp/monitoring.yml /home/ubuntu/vizix_repositories/monitoring/"
+//    ]
+//  }
+//}
+
+#
+# =================== TransformBridge Server =======================
+#
+
+resource "aws_instance" "TransformBridge" {
+  ami = "${var.aws_ami}"
+  instance_type = "${var.instance_type}"
+  key_name = "${var.aws_key_name}"
+  security_groups = "${var.aws_security_groups}"
+
+  tags {
+    Name = "${var.name}"
+  }
+
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+    private_key = "${file(var.private_key_path)}"
+    timeout = "5m"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/daemon.json"
+    destination = "/tmp/daemon.json"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/daemon.json /etc/docker/daemon.json",
+      "sudo groupadd docker",
+      "sudo usermod -aG docker $USER",
+    ]
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo systemctl daemon-reload",
+      "sudo systemctl stop docker",
+      "sudo rm -rf /var/lib/docker",
+      "sudo systemctl start docker",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /data/zookeeper/data /data/zookeeper/datalog /data/mysql /data/mongo /data/kafka /data/endorsed /data/rulesprocessor-data /data/mongoinjector-data /data/transformbridge-data /data/k2m-data /data/prometheus /data/grafana /data/actionprocessor-data",
+      "sudo mkdir -p /data/db /var/lib/mysql /datalog /usr/local/tomcat/endorsed /var/vizix/rulesProcessor /var/vizix/mongoIngestor /var/vizix"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/monitoring.yml"
+    destination = "/tmp/monitoring.yml"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/prometheus.yml"
+    destination = "/tmp/prometheus.yml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/prometheus.yml /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/monitoring.yml /home/ubuntu/vizix_repositories/monitoring/"
+    ]
+  }
+}
+
+#
+# =================== MongoInjector Server =======================
+#
+
+resource "aws_instance" "MongoInjector" {
+  ami = "${var.aws_ami}"
+  instance_type = "${var.instance_type}"
+  key_name = "${var.aws_key_name}"
+  security_groups = "${var.aws_security_groups}"
+
+  tags {
+    Name = "${var.name}"
+  }
+
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+    private_key = "${file(var.private_key_path)}"
+    timeout = "5m"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/daemon.json"
+    destination = "/tmp/daemon.json"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/daemon.json /etc/docker/daemon.json",
+      "sudo groupadd docker",
+      "sudo usermod -aG docker $USER",
+    ]
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo systemctl daemon-reload",
+      "sudo systemctl stop docker",
+      "sudo rm -rf /var/lib/docker",
+      "sudo systemctl start docker",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /data/zookeeper/data /data/zookeeper/datalog /data/mysql /data/mongo /data/kafka /data/endorsed /data/rulesprocessor-data /data/mongoinjector-data /data/transformbridge-data /data/k2m-data /data/prometheus /data/grafana /data/actionprocessor-data",
+      "sudo mkdir -p /data/db /var/lib/mysql /datalog /usr/local/tomcat/endorsed /var/vizix/rulesProcessor /var/vizix/mongoIngestor /var/vizix"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/monitoring.yml"
+    destination = "/tmp/monitoring.yml"
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/monitoring/prometheus.yml"
+    destination = "/tmp/prometheus.yml"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/prometheus.yml /home/ubuntu/vizix_repositories/monitoring/",
+      "sudo cp -rf /tmp/monitoring.yml /home/ubuntu/vizix_repositories/monitoring/"
+    ]
+  }
+}
+
+#
+# =================== Output =======================
+#
+
+output "DataBase_private_IP" {
+  value = "${aws_instance.DataBase.private_ip}"
+}
+output "DataBase_public_IP" {
+  value = "${aws_instance.DataBase.public_ip}"
+}
+output "Kafka_private_IP" {
+  value = "${aws_instance.Kafka.private_ip}"
+}
+output "Kafka_public_IP" {
+  value = "${aws_instance.Kafka.public_ip}"
+}
+output "Rulesprocessor1_private_IP" {
+  value = "${aws_instance.Rulesprocessor1.private_ip}"
+}
+output "Rulesprocessor1_public_IP" {
+  value = "${aws_instance.Rulesprocessor1.public_ip}"
+}
+//output "Rulesprocessor2_private_IP" {
+//  value = "${aws_instance.Rulesprocessor2.private_ip}"
+//}
+//output "Rulesprocessor2_public_IP" {
+//  value = "${aws_instance.Rulesprocessor2.public_ip}"
+//}
+output "TransformBridge_private_IP" {
+  value = "${aws_instance.TransformBridge.private_ip}"
+}
+output "TransformBridge_public_IP" {
+  value = "${aws_instance.TransformBridge.public_ip}"
+}
+output "Manager_private_IP" {
+  value = "${aws_instance.Manager.private_ip}"
+}
+output "Manager_public_IP" {
+  value = "${aws_instance.Manager.public_ip}"
+}
+output "MongoInjector_private_IP" {
+  value = "${aws_instance.MongoInjector.private_ip}"
+}
+output "MongoInjector_public_IP" {
+  value = "${aws_instance.MongoInjector.public_ip}"
+}

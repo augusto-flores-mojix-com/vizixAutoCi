@@ -1,0 +1,6 @@
+
+  versioning:
+    hostname: versioning
+    container_name: versioning
+    image: ${VERSIONING}
+    restart: always

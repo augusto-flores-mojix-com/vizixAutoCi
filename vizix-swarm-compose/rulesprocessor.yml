@@ -1,0 +1,32 @@
+version: "3.3"
+
+networks:
+  iot:
+    driver: overlay
+    attachable: true
+
+services:
+  rulesprocessorITERATOR:
+    hostname: rulesprocessorITERATOR
+    image: mojix/riot-core-bridges:develop
+    environment:
+      JAVA_OPTS: "-agentpath:/app/jprofiler/bin/linux-x64/libjprofilerti.so=nowait"
+#      MEM_XMS: 2g
+#      MEM_XMX: 8g
+      VIZIX_ESPER: 'yes'
+      VIZIX_BRIDGE_TYPE: rulesprocessor
+      VIZIX_KAFKA_CODE: RulesProcessor
+      VIZIX_KAFKA_SERVERS: kafka:9092
+      VIZIX_LOG_LEVEL: 'INFO'
+#      WRITE_BUFFER_SIZE: 512MB
+#      MAX_WRITE_BUFFER_NUMBER: 40
+#      MIN_WRITE_BUFFER_NUMBER: 5
+
+    volumes:
+      - /data/rulesprocessor-data:/var/vizix/rulesProcessor
+    networks:
+      - iot
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.rulesprocessorITERATOR == true

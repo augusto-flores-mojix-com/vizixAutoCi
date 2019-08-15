@@ -1,0 +1,20 @@
+CBRegression05,@CBRegression08,@CBRegression09,@CBRegression10,@CBRegression15
+CBRegression01,@CBRegression02 basic,mqtt_ssl_auth
+CBRegression03,@CBRegression04
+CBRegression06,@CBScheduledRule,@CBVizixFunctionSerialExecution
+CBRegression07,@CBRegression13
+CBRegression11,@CBRegression12
+BridgesThings,@BridgesExpressionSequence,@CBAliasRepeatFilter,@CBRegression14
+ServicesThingTypeTemplate,@Things,@ServicesThingSnaphotNormal,@ServicesThingSnaphotZoneMessage,@ServicesThingSnaphotJsRule,@ServicesThingSnaphotTwoUdf
+ServicesThingSnaphotDdd,@ServicesThingSnaphotMqtt
+ServicesThingSnaphotServices
+ServicesTenants,@ServicesServices,@ServicesReportZoneMap,@ServicesReportDefinition
+ServicesReportDetail
+ServicesReportHistory
+ServicesReportScript
+ServicesConsistencyBridges,@ServicesReportPageSizeMinusOne,@ServicesReportMap,@ServicesModel,@ServicesGateWay
+ServicesReportSummary,@ServicesThingType,@ServicesMultiLevel,@ServicesThing
+ServicesConsistency
+ServicesSnapshotTTUdf
+FTPAcceptance basic,ftpbridge
+Bvt,@ServiceMultiTenant,@ServicesExpressionSequence basic,ftpbridge

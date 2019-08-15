@@ -1,0 +1,430 @@
+
+  ###################################################################################################
+
+  shopcx-mysql:
+    image: ${MYSQL_SHOPCX}
+    hostname: shopcx-mysql
+    container_name: shopcx-mysql
+    mem_reservation: 1g
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: control123!
+    volumes:
+      - ${VIZIX_DATA_PATH}/shopcx-mysql/data:/var/lib/mysql
+    command: --max_allowed_packet=1024M --max_connections=7000 --interactive_timeout=3600 --wait_timeout=3600 --lower_case_table_names=1 --net_write_timeout=3600 --net_read_timeout=3600 --innodb_lock_wait_timeout=600 --skip-name-resolve --innodb_thread_sleep_delay=60000000 --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_unicode_ci
+
+  influxdb:
+    hostname: influxdb
+    container_name: influxdb
+    image: ${INFLUXDB}
+    mem_reservation: 1g
+    volumes:
+      - ${VIZIX_DATA_PATH}/influxdb/data:/var/lib/influxdb
+
+  monitoring-api:
+    hostname: monitoring-api
+    container_name: monitoring-api
+    mem_reservation: 1g
+    image: ${MONITORING_API}
+    ports:
+      - 8086:8080
+    restart: unless-stopped
+    environment:
+      configuration.api.host: 'internaltransformer'
+      configuration.api.war.name : '/statemachine-api-configuration'
+      metrics.elasticsearch.host: 'shopcx-elasticsearch-monitoring'
+      metrics.elasticsearch.authorization:  "Basic ${BASIC_AUTH_USER}"
+      location.api.host: internaltransformer
+      location.api.war.name : 'statemachine-api-configuration'
+      JAVA_OPTS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1  -XshowSettings:vm'
+
+  statemachine-api-dashboard-monitoring:
+    hostname: statemachine-api-dashboard-monitoring
+    container_name: statemachine-api-dashboard-monitoring
+    mem_reservation: 1g
+    image: ${MONITORING_DASHBOARD}
+    ports:
+      - 9001:9001
+    environment:
+      - DEV_CONFIGURATION_API_URL=http://internaltransformer:8080 # remove it in production as it's behind a reverse proxy
+      - MERCH_DASHBOARD_URL=http://${INTERNAL_IP}:8080 # remove it in production as it's behind a reverse proxy
+      - KIBANA_SERVER_URL=shopcx-kibana:5601 # should be define even in production environment, kibana server normally is located on monitoring server
+      - MONITORING_API_URL=monitoring-api:8080  # remove it in production as it's behind a reverse proxy
+      - MULTI_TENANT_ENABLED=true
+    restart: unless-stopped
+
+  shopcx-elasticsearch-monitoring:
+    image: ${ELASTIC_SEARCH}
+    hostname: shopcx-elasticsearch-monitoring
+    container_name: shopcx-elasticsearch-monitoring
+    mem_reservation: 1g
+    environment:
+      cluster.name: docker-cluster
+      xpack.security.enabled: 'false'
+      discovery.type: 'single-node'
+      bootstrap.memory_lock: 'true'
+      ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+    volumes:
+      - ${VIZIX_DATA_PATH}/shopcx-es-monitoring/data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  shopcx-kibana:
+    hostname: shopcx-kibana
+    container_name: shopcx-kibana
+    image: ${KIBANA}
+    mem_reservation: 1g
+    command: /bin/bash -c 'bin/kibana-plugin remove x-pack ; /usr/local/bin/kibana-docker'
+    depends_on:
+      - shopcx-elasticsearch-monitoring
+    environment:
+      ELASTICSEARCH_URL: http://shopcx-elasticsearch-monitoring:9200
+      SERVER_NAME: shopcx-kibana
+    ports:
+      - 5601:5601
+
+  monitoring-init:
+    build: /home/dp-monitoring-init
+    mem_reservation: 1g
+    environment:
+      url_monitoring: http://shopcx-elasticsearch-monitoring:9200
+      url_kibana: http://shopcx-kibana:5601
+      es_version: 5.4.0
+    depends_on:
+      - shopcx-elasticsearch-monitoring
+      - shopcx-kibana
+
+  shopcx-rabbitmq:
+    image: ${RABBIT_MQ}
+    hostname: shopcx-rabbitmq
+    container_name: shopcx-rabbitmq
+    mem_reservation: 1g
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: control123!
+      HOSTNAME: shopcx-rabbitmq
+    ports:
+      - "5672:5672"
+      #   - "5671:5671" For secure connections
+      - "15672:15672"
+    volumes:
+      - ${VIZIX_DATA_PATH}/rabbitmq/data:/var/lib/rabbitmq
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+
+  configuration-api-devices:
+    image: ${API_DEVICES}
+    hostname: configuration-api-devices
+    container_name: configuration-api-devices
+    mem_reservation: 1g
+    environment:
+      locations.api.host: internaltransformer
+      locations.api.port: 8080
+      statemachine.api.configuration.firmware.folder: /usr/local/firmware
+      MYSQL_URL: shopcx-mysql
+      MYSQL_DATABASE: configurationdevices
+      MYSQL_USER: root
+      MYSQL_PASSWORD: control123!
+      kafka.servers: ${INTERNAL_IP}:9092
+      kafka.topics: ___v1___cache___group
+      JAVA_OPTS: '-DMEM_XMS=1g -DMEM_XMX=2g -DMYSQL_DATABASE=configurationdevices -DMYSQL_USER=root -DMYSQL_PASSWORD=control123! -DMYSQL_URL=shopcx-mysql -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1  -XshowSettings:vm'
+    volumes:
+      - ${VIZIX_DATA_PATH}/shopcx/configuration-api-devices/firmware:/usr/local/firmware
+
+  configuration-api-languages:
+    image: ${API_LANGUAGES}
+    hostname: configuration-api-languages
+    container_name: configuration-api-languages
+    mem_reservation: 1g
+    environment:
+      locations.api.host: internaltransformer
+      locations.api.port: 8080
+      MYSQL_URL: shopcx-mysql
+      MYSQL_DATABASE: configurationlanguages
+      MYSQL_USER: root
+      MYSQL_PASSWORD: control123!
+      JAVA_OPTS: '-DMEM_XMS=1g -DMEM_XMX=2g  -DMYSQL_DATABASE=configurationlanguages -DMYSQL_USER=root -DMYSQL_PASSWORD=control123! -DMYSQL_URL=shopcx-mysql -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1  -XshowSettings:vm'
+
+  dp-asn-auto-engine:
+    image: ${ASN_AUTO}
+    hostname: dp-asn-auto-engine
+    container_name: dp-asn-auto-engine
+    mem_reservation: 1g
+    environment:
+      amqp.host: shopcx-rabbitmq
+      amqp.port: '5672'
+      amqp.user: admin
+      amqp.password: control123!
+      api.supplychain.host: externaltransformer
+      api.supplychain.port: '8080'
+      supplychain.client.timeout.ms: '10000'
+      supplychain.circuit.maxfailures: '50'
+      api.configuration.host: externaltransformer
+      api.configuration.port: '8080'
+      configuration.client.timeout.ms: '10000'
+      configuration.circuit.maxfailures: '50'
+      hystrix.port: '4444'
+      influxdb.uri: http://influxdb:8086
+      influxdb.user: admin
+      influxdb.password: control123!
+      influxdb.db: asnauto
+
+
+  dp-dashboard:
+    image: ${DP_DASHBOARD}
+    hostname: dp-dashboard
+    container_name: dp-dashboard
+    mem_reservation: 1g
+
+  dp-instant-event-generation:
+    image: ${INSTANT_EVENT_GENERATION}
+    restart: unless-stopped
+    hostname: dp-instant-event-generation
+    container_name: dp-instant-event-generation
+    mem_reservation: 1g
+    environment:
+      - amqp.host=shopcx-rabbitmq
+      - amqp.port=5672
+      - amqp.user=admin
+      - amqp.password=control123!
+      - api.configuration.host=internaltransformer
+      - api.configuration.port=8080
+      ## EPCIS Input API
+      - api.epcis.input.host=internaltransformer
+      - api.epcis.input.port=8080
+      ## monitoring
+      - influxdb.uri=http://influxdb:8086
+      - influxdb.db=asnauto
+      - influxdb.user=admin
+      - influxdb.password=control123!
+
+  dp-retroactive-event-generation:
+    image: ${RETROACTIVE_EVENT_GENERATION}
+    hostname: dp-retroactive-event-generation
+    container_name: dp-retroactive-event-generation
+    mem_reservation: 1g
+    environment:
+      url.api.configuration.locations: 'http://internaltransformer:8080'
+      url.api.epcis.search: 'http://internaltransformer:8080'
+      url.api.epcis.input: 'http://internaltransformer:8080'
+      retroactive.receiving.schedule.cron: '45 45 * * * ?'
+      retroactive.receiving.start.time.default: '2000-01-01T00:00:00.000Z'
+      MYSQL_URL: shopcx-mysql
+      MYSQL_DATABASE: aggregates
+      MYSQL_USER: root
+      MYSQL_PASSWORD: control123!
+      JAVA_OPTS: '-DMEM_XMS=1g -DMEM_XMX=2g -DMYSQL_DATABASE=aggregates -DMYSQL_USER=root -DMYSQL_PASSWORD=control123! -DMYSQL_URL=shopcx-mysql -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1  -XshowSettings:vm'
+
+  red-amqp-servicebus:
+    image: ${RED_AMQP_SERVICE}
+    hostname: red-amqp-servicebus
+    container_name: red-amqp-servicebus
+    mem_reservation: 1g
+    environment:
+      - rabbitmq_server_host=shopcx-rabbitmq
+      - rabbitmq_server_port=5672
+      - rabbitmq_routing_key=*.*.in_progress
+      - rabbitmq_user=admin
+      - rabbitmq_password=control123!
+      - core_server_host=internaltransformer
+      - core_server_port=8080
+      - core_server_auth=false
+      - error_redelivery_delay=6000
+     # - amqp_azure_bus_service_url=false
+     # - amqp_azure_bus_service_user=false
+     # - amqp_azure_bus_service_password=false
+     # - amqp_azure_topic=false
+      - amqp.azure.bus.service0={tenant:"tenant",url:"amqp://azurehost:5672",user:"azure",password:"pass",topic:"azureretopic"}
+      - error_route_cron=12 2/5 * * * ?
+      - main_route_consumers_quantity=5
+
+
+  reverse-proxy-devices:
+    image: ${REVERSE_PROXY_DEVICES}
+    hostname: reverse-proxy-devices
+    container_name: reverse-proxy-devices
+    mem_reservation: 1g
+    ports:
+      - 9999:8081
+
+  serialization-api:
+    image: ${SERIALIZATION_API}
+    hostname: serialization-api
+    container_name: serialization-api
+    mem_reservation: 1g
+    environment:
+      epcis.input.api.host: internaltransformer
+      epcis.input.api.port: 8080
+      serialization.persistence.lock.timeout: 1000
+      locations.api.host: internaltransformer
+      locations.api.port: 8080
+      prop.configuration.settings.companyprefix: global.company.prefix.list
+      prop.configuration.settings.companyprefix.separator: global.company.prefix.list.separator
+      company.prefix.length.default: 7
+      serialization.persistence.lock.timeout: 1000
+      kafka.servers: ${INTERNAL_IP}:9092
+      MYSQL_URL: shopcx-mysql
+      MYSQL_DATABASE: serialization
+      MYSQL_USER: root
+      MYSQL_PASSWORD: control123!
+      JAVA_OPTS: '-DMYSQL_DATABASE=serialization -DMYSQL_USER=root -DMYSQL_PASSWORD=control123! -DMYSQL_URL=shopcx-mysql -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1  -XshowSettings:vm'
+
+  minio:
+    image: ${MINIO}
+    hostname: minio
+    container_name: minio
+    command: server /data
+    mem_reservation: 1g
+    ports:
+      - 9000:9000
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: control123!
+    volumes:
+      - ${VIZIX_DATA_PATH}/minio:/data
+
+  internaltransformer:
+    hostname: internaltransformer
+    container_name: internaltransformer
+    image: ${INTERNAL_TRANSFORMER}
+    mem_reservation: 1g
+    environment:
+      - EXTERNALTRANSFORMER_HOSTNAME=externaltransformer
+      - EXTERNALTRANSFORMER_PORT=8080
+      - BASIC_AUTH_STRING=${BASIC_AUTH_USER}
+    ports:
+      - 18080:8080
+
+  proxySCX:
+    image: ${PROXY_CXI}
+    hostname: proxySCX
+    container_name: proxySCX
+    mem_reservation: 1g
+    ports:
+      - 8081:8081
+    environment:
+      - ACME_AGREE=true
+    command: --conf /etc/Caddyfile -http2=false --agree
+    volumes:
+      - ./CaddyfileSCX:/etc/Caddyfile:ro
+
+
+  api-gateway:
+    image: ${API_GATEWAY}
+    hostname: api-gateway
+    container_name: api-gateway
+    mem_reservation: 1g
+    environment:
+      - SECRET_KEY=Control123!
+      - ALLOWED_HOSTS=*,
+      - API_HOSTS_USE_HTTPS=false
+      - API_AUTH=cm9vdDpDb250cm9sMTIzIQ==
+      - BIZ_SERVER_HOSTS=internaltransformer:8080
+      - CORE_SERVER_HOSTS=internaltransformer:8080
+      - FORWARDED_ALLOW_IPS=*,
+      - LOGLEVEL=DEBUG
+      - ENABLE_REDIS_LOG=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - STATSD_HOST=localhost
+      - STATSD_PORT=8125
+
+  statemachine-api-dashboard-configuration:
+    image: ${STATEMACHINE_API_DASHBOARD_CONFIG}
+    hostname: statemachine-api-dashboard-configuration
+    container_name: statemachine-api-dashboard-configuration
+    mem_reservation: 1g
+    environment:
+      - MEM_XMS=1g
+      - MEM_XMX=2g
+      - DEV_CONFIGURATION_API_URL=http://${EXTERNAL_IP}
+      - DEV_CONFIGURATION_API_URL_LOCAL=http://${EXTERNAL_IP}
+      - MODULE_PRINTER_DEVICE_ENABLED=true
+      - MODULE_XPT_DEVICE_ENABLED=true
+      - MODULE_POS_DEVICE_ENABLED=true
+      - MODULE_IMPORT_PN_DEVICE_ENABLED=true
+
+  configuration-dashboard:
+    image: ${CONFIGURATION_DASHBOARD}
+    hostname: configuration-dashboard
+    container_name: configuration-dashboard
+    mem_reservation: 1g
+    environment:
+      - MEM_XMS=1g
+      - MEM_XMX=2g
+      - DEV_CONFIGURATION_LOCATION_API_URL=http://${EXTERNAL_IP}
+      - DEV_KEONN_SYNCHRO_API_URL=http://${EXTERNAL_IP}
+      - DEV_CONFIGURATION_LOCATION_APP_URL=/configuration-dashboard/
+      - NODE_ENV=production
+
+  dashboard-epcis-search:
+    image: ${DASHBOARD_EPCIS_SEARCH}
+    hostname: dashboard-epcis-search
+    container_name: dashboard-epcis-search
+    mem_reservation: 1g
+    environment:
+      - url=http://${EXTERNAL_IP}
+
+  externaltransformer:
+    image: ${EXTERNAL_TRANSFORMER}
+    hostname: externaltransformer
+    container_name: externaltransformer
+    environment:
+      - MEM_XMS=1g
+      - MEM_XMX=3g
+      - VIZIX_API=http://proxy/riot-core-services/api
+      - VIZIX_HTTP_BRIDGE=http://${KAFKA_ADDRESS}:9091/http-bridge/v1/data0/
+      - VIZIX_HTTP_BRIDGE_REAL=http://${KAFKA_ADDRESS}:9091/http-bridge
+      - VIZIX_HTTP_BRIDGE_BATCH_SIZE=500
+      - VIZIX_TOPIC_JSON2=/v2/data0/json
+      - VIZIX_ROOT_API_KEY=${VIZIX_API_KEY}
+      - VIZIX_MONGO_PRIMARY=mongo:27017
+      - VIZIX_MONGO_USERNAME=admin
+      - VIZIX_MONGO_PASSWORD=control123!
+      - VIZIX_MONGO_AUTH_DATABASE=admin
+      - VIZIX_MONGO_DATABASE=viz_red
+      - VIZIX_TRANSFORMER_CONNECT_TIMEOUT=0
+      - VIZIX_TRANSFORMER_READ_TIMEOUT=0
+      - VIZIX_CXI_API=http://proxySCX:8081
+      - VIZIX_DATA_SOURCE=BI_CUBES
+      - VIZIX_MINIO_ACCESS_KEY=minio
+      - VIZIX_MINIO_ENDPOINT=http://minio:9000
+      - VIZIX_MINIO_SECRET_KEY=control123!
+      - VIZIX_MINIO_IMAGE_URL=http://${INTERNAL_IP}:9000
+      - VIZIX_TAG_AUTH_SUPERVISION_PERIODIC_CHECK_ENABLED=false
+      - VIZIX_AMQP_CONNECTION_URI=amqp://admin@shopcx-rabbitmq:5672
+      - VIZIX_AMQP_CONNECTION_PASSWORD=control123!
+      - VIZIX_AMQP_HUB_CONNECTION_URI=amqp://admin@shopcx-rabbitmq:5672
+      - VIZIX_AMQP_HUB_CONNECTION_PASSWORD=control123!
+      - VIZIX_AMQP_HUB_EVENT_QUEUE_NAME=statemachine_jsonEpcis_input_queue
+      - VIZIX_AMQP_HUB_TENANT=RED
+      - VIZIX_AMQP_RFL_QUEUE_NAME=supplychain_exchange
+      - VIZIX_RFL_EVICTION_TIMEOUT=2
+  #    ports:
+  #      - 8080:8080
+
+  reportgenerator:
+    hostname: reportgenerator
+    container_name: reportgenerator
+    mem_reservation: 1g
+    image: ${REPORTGENERATOR}
+    environment:
+      # JAVA_OPTS: "-agentpath:/app/jprofiler/bin/linux-x64/libjprofilerti.so=nowait"
+      - VIZIX_BRIDGE_TYPE=reportgenerator
+      - VIZIX_KAFKA_SERVERS=${INTERNAL_IP}:9092
+      - VIZIX_REPORT_GENERATOR_PRODUCT_THINGTYPE_FQN=/RED/PRODUCT
+      - VIZIX_REPORT_GENERATOR_PRODUCT_DB_COLLECTION=productcube
+      - VIZIX_REPORT_GENERATOR_EPCISEVENT_THINGTYPE_FQN=/RED/EPCISEVENT
+      - VIZIX_REPORT_GENERATOR_EPCISEVENT_DB_COLLECTION=epciseventcube
+      - VIZIX_REPORT_GENERATOR_CONTENT_THINGTYPE_FQN=/RED/CONTENT
+      - VIZIX_REPORT_GENERATOR_REFERENCE_LIST_DB_COLLECTION=referencelistcube
+      - VIZIX_REPORT_GENERATOR_REFERENCE_LIST_THINGTYPE_FQN=/RED/REFERENCELIST
+      - VIZIX_REPORT_GENERATOR_STATUS_DB_COLLECTION=statuscube
+      - VIZIX_REPORT_GENERATOR_STATUS_THINGTYPE_FQN=/RED/ITEM,/RED/ITEMFINALSTATUS
+      - VIZIX_REPORT_GENERATOR_CATEGORY_DB_COLLECTION=categorycube
+      - VIZIX_REPORT_GENERATOR_CATEGORY_THINGTYPE_FQN=/RED/DEPARTMENTZONEMAPPING
+      - VIZIX_REPORT_GENERATOR_LOCATION_DB_COLLECTION=locationcube
+      - VIZIX_REPORT_GENERATOR_LOCATION_THINGTYPE_FQN=/RED/LOCATION
+      - VIZIX_REPORT_GENERATOR_FIXTURE_THINGTYPE_FQN=/RED/FIXTURE
+      - VIZIX_REPORT_GENERATOR_FIXTURE_DB_COLLECTION=fixturecube

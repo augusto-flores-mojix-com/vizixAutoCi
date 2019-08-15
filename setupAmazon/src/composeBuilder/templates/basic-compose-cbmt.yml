@@ -1,0 +1,173 @@
+version: "2.3"
+services:
+    
+  logs:
+    image: ${LOGS}
+    restart: always
+    hostname: logs
+    container_name: logs
+    command: -h logio -n docker
+    read_only: true
+    mem_limit: 512m
+    depends_on:
+      - logio
+      - services
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  logio:
+    hostname: logio
+    restart: always
+    container_name: logio
+    image: ${LOGIO}
+    read_only: true
+    restart: always
+    cpu_count: 1
+    mem_limit: 1g
+    ports:
+      - 28777:28777
+      - 28778:28778
+
+  ntpd:
+    hostname: ntpd
+    container_name: ntpd
+    image: ${NTPD}
+    command: ntpd -d -f /etc/ntp-client.conf
+    restart: always
+    read_only: true
+    cpu_count: 1
+    mem_limit: 20m
+    cap_add:
+      - SYS_NICE
+      - SYS_TIME
+    tmpfs:
+      - /var/run:rw,noexec,nosuid,size=1m
+      - /var/db:rw,noexec,nosuid,size=8m
+
+  ntpdserver:
+    hostname: ntpdserver
+    container_name: ntpdserver
+    image: ${NTPD}
+    restart: always
+    read_only: true
+    cpu_count: 1
+    mem_limit: 20m
+    cap_add:
+      - SYS_NICE
+      - SYS_TIME
+    tmpfs:
+      - /var/run:rw,noexec,nosuid,size=1m
+      - /var/db:rw,noexec,nosuid,size=8m
+    ports:
+      - 123:123/udp
+
+  mosquitto:
+    image: ${MQTT}
+    ports:
+      - 1883:1883
+    restart: always
+    hostname: mosquitto
+    container_name: mosquitto
+    cpu_count: 1
+    mem_reservation: 256m
+    mem_limit: 1g
+
+  mongo:
+    image: ${MONGO}
+    ports:
+      - 27017:27017
+    restart: always
+    hostname: mongo
+    container_name: mongo
+    mem_reservation: 1g
+    command: --storageEngine=wiredTiger --journal --slowms=5 --profile=2 --cpu --dbpath=/data/db --directoryperdb --wiredTigerCacheSizeGB=1 --wiredTigerDirectoryForIndexes --auth
+    volumes:
+      - ${VIZIX_DATA_PATH}/mongo:/data/db
+
+  hazelcast:
+    restart: always
+    hostname: hazelcast
+    container_name: hazelcast
+    cpu_count: 1
+    image: ${HAZELCAST}
+    ports:
+            - "5701:5701"
+            - "5702:5702"
+            - "5703:5703"
+    environment:
+      MEM_XMS: 768m
+      MEM_XMX: 1g
+      VIZIX_HAZELCAST_PUBLIC_ADDRESS: hazelcast
+      VIZIX_HAZELCAST_MEMBER_LIST: hazelcast
+      VIZIX_HAZELCAST_MANAGEMENT_CENTER: http://mancenter:8080/mancenter
+    ulimits:
+      nofile:
+        soft: 90000
+        hard: 100000
+
+  ui:
+    image: ${UI}
+    restart: always
+    hostname: ui
+    container_name: ui
+    cpu_count: 1
+    mem_reservation: 768m
+    mem_limit: 1g
+    environment:
+      VIZIX_API_HOST: ${SERVICES_URL}
+      VIZIX_API_SECURE: 0
+
+  proxy:
+    image: ${PROXY}
+    ports:
+      - 80:80
+    restart: always
+    hostname: proxy
+    container_name: proxy
+    cpu_count: 1
+    mem_reservation: 1g
+    command: --conf /etc/Caddyfile -http2=false
+    volumes:
+      - ./Caddyfile:/etc/Caddyfile:ro
+
+  flow:
+    image: ${FLOW}
+    restart: always
+    hostname: flow
+    container_name: flow
+    volumes:
+      - ${VIZIX_DATA_PATH}/flows:/flows
+    cpu_count: 1
+    mem_reservation: 1g
+
+  corebridge:
+    restart: always
+    hostname: corebridge
+    container_name: corebridge
+    image: ${BRIDGES}
+    depends_on:
+      - services
+    environment:
+      VIZIX_BRIDGE_TYPE: agent
+      AB_MQTTHOST: mosquitto
+      AB_MQTTPORT: 1883
+      AB_LOGGER: stdout
+      VIZIX_ESPER: 'yes'
+      AB_AGENT_CODE: agent1
+
+  alebridge:
+    restart: always
+    image: ${BRIDGES}
+    hostname: alebridge
+    container_name: alebridge
+    ports:
+      - "9090:9090"
+      - "9091:9091"
+    depends_on:
+      - services
+    environment:
+      VIZIX_BRIDGE_TYPE: agent
+      AB_MQTTHOST: mosquitto
+      AB_MQTTPORT: 1883
+      AB_LOGGER: stdout
+      AB_AGENT_CODE: agent2

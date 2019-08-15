@@ -1,0 +1,31 @@
+CBRegression01,@CBRegression02 basic,mqtt_ssl_auth
+CBRegression03
+CBRegression04
+CBRegression05,@CBSortExecution
+CBRegression06,@CBScheduledRule
+CBRegression07
+CBRegression08,@CBRegression09,@CBRegression11
+CBRegression10
+CBRegression12
+CBRegression13
+CBRegression14
+CBRegression15
+BridgesThings
+Services01
+ServicesTenants,@ServicesServices
+ServicesReportMap,@ServicesModel,@ServicesGateWay,@ServicesReportDetail,@ServicesReportScript,@ServicesReportZoneMap
+ServicesReportHistory,@ServicesReportSummary
+ServicesThingSnaphotNormal,@ServicesThingSnaphotMqtt,@ServicesThingSnaphotZoneMessage
+ServicesThingSnaphotDdd
+ServicesThingSnaphotJsRule,@ServicesThingSnaphotTwoUdf
+ServicesThingSnaphotServices
+ServicesReportHistory2,@ServicesReportPageSizeMinusOne
+ZoneDwellFilter basic,starflexbridge
+ServicesSnapshotTTUdf,@Notebook basic,zeppelin
+FTPAcceptance basic,ftpbridge
+Bvt,@ServiceMultiTenant,@ServicesExpressionSequence basic,ftpbridge
+UIThings,@UIThingType,@UIUser,@UIShift,@UIZoneGroup,@UIZone,@UISchedule basic uiDocker
+UISkinSettings basic uiDocker
+UIOwnerShipLevel basic uiDocker
+UICheckAmp basic uiDocker
+UIZone,@UISchedule,@UIAnalytics basic uiDocker

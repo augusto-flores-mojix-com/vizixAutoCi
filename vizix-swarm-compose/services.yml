@@ -1,0 +1,60 @@
+version: "3.3"
+
+networks:
+  iot:
+    driver: overlay
+    attachable: true
+
+services:
+
+  services:
+    image: mojix/riot-core-services:develop
+    environment:
+#      - MEM_XMS=4g
+#      - MEM_XMX=8g
+      - VIZIX_MONGO_PRIMARY=mongo:27017
+      - VIZIX_MONGO_DB=riot_main
+      - VIZIX_MONGO_USERNAME=admin
+      - VIZIX_MONGO_PASSWORD=control123!
+      - VIZIX_MQTT_HOST=mosquitto
+      - VIZIX_CONNECTION_URL=jdbc:mysql://mysql:3306/riot_main?useSSL=false
+      - VIZIX_DB_SCHEMA=riot_main
+      - VIZIX_DB_DRIVER=com.mysql.jdbc.Driver
+      - VIZIX_DB_DIALECT=org.hibernate.dialect.MySQLDialect
+      - VIZIX_DB_PASSWORD=control123!
+      - VIZIX_HAZELCAST_DISTRIBUTED_ENABLE=true
+      - VIZIX_HAZELCAST_NATIVE_CLIENT_ADDRESS=hazelcast
+      - VIZIX_AUTHENTICATION_MODE=nativeAuthentication
+      - VIZIX_BROKER_CONNECTION_WAIT=false
+      - VIZIX_KAFKA_ENABLED=true
+      - VIZIX_KAFKA_ZOOKEEPER=zookeeper:2181
+      - VIZIX_KAFKA_SERVERS=kafka:9092
+    volumes:
+      - /data/endorsed:/usr/local/tomcat/endorsed
+    ports:
+      - 8080:8080
+    networks:
+      - iot
+    deploy:
+#      resources:
+#        limits:
+#          cpus: '4'
+#          memory: 9G
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.services == true
+
+  ui:
+    image: mojix/riot-core-ui:develop
+    environment:
+      VIZIX_API_HOST: 34.229.40.160:80
+      VIZIX_API_SECURE: 0
+    ports:
+      - 80:80
+    healthcheck:
+      disable: true
+    deploy:
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.ui == true
+

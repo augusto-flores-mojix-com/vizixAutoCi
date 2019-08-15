@@ -1,0 +1,136 @@
+version: "3.3"
+
+networks:
+  iot:
+    driver: overlay
+    attachable: true
+
+services:
+
+  mosquitto:
+    image: mojix/emqtt:2.2.0
+#    ports:
+#      - 1883:1883
+#      - 18083:18083
+    ports:
+     - target: 1883
+       published: 1883
+       protocol: tcp
+       mode: host
+    networks:
+      - iot
+    environment:
+      - EMQ_MQTT__CLIENT__ENABLE_STATS=on
+      - EMQ_MQTT__SESSION__ENABLE_STATS=on
+      - EMQ_MQTT__MAX_PACKET_SIZE=512000KB
+      #- EMQ_MQTT__SESSION__MAX_INFLIGHT=0
+      - EMQ_MQTT__CLIENT__IDLE_TIMEOUT=120s
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.mosquitto == true
+
+  mongo:
+    image: mongo:3.4
+#    ports:
+#      - 27017:27017
+    ports:
+     - target: 27017
+       published: 27017
+       protocol: tcp
+       mode: host
+    networks:
+      - iot
+    command: --storageEngine=wiredTiger --journal --slowms=5000 --profile=1 --cpu --dbpath=/data/db --directoryperdb --wiredTigerDirectoryForIndexes --auth
+    volumes:
+      - /data/mongo:/data/db
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.mongo == true
+
+  hazelcast:
+    image: mojix/vizix-hc-server:develop
+    environment:
+#      MEM_XMS: 768m
+#      MEM_XMX: 6g
+      VIZIX_HAZELCAST_PUBLIC_ADDRESS: hazelcast
+      VIZIX_HAZELCAST_MEMBER_LIST: hazelcast
+#    ports:
+#      - 10102:10102
+    networks:
+      - iot
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.hazelcast == true
+
+  mysql:
+    image: mysql:5.7
+#    ports:
+#      - 3306:3306
+    ports:
+     - target: 3306
+       published: 3306
+       protocol: tcp
+       mode: host
+    command: --max_allowed_packet=1024M --max_connections=7000 --query_cache_size=0 --interactive_timeout=3600 --wait_timeout=3600 --lower_case_table_names=0 --net_write_timeout=3600 --net_read_timeout=3600 --innodb_lock_wait_timeout=600 --skip-name-resolve --innodb_thread_sleep_delay=60000000
+    volumes:
+      - /data/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=riot_main
+      - MYSQL_ROOT_PASSWORD=control123!
+    networks:
+      - iot
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.mysql == true
+
+  kafka:
+    image: mojix/kafka
+    environment:
+#      KAFKA_MAX_MEMORY: 8g
+#      KAFKA_MIN_MEMORY: 4g
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_HOST_NAME: kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_RETENTION_BYTES: -1
+    volumes:
+      - /data/kafka:/data
+#    ports:
+#      - 9092:9092
+    ports:
+     - target: 9092
+       published: 9092
+       protocol: tcp
+       mode: host
+    networks:
+      - iot
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.kafka == true
+
+
+  zookeeper:
+    image: zookeeper:3.4.10
+#    ports:
+#      - 2181:2181
+    networks:
+      - iot
+    volumes:
+      - /data/zookeeper/data:/data
+      - /data/zookeeper/datalog:/datalog
+    deploy:
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.com.vizixcloud.swarm.zookeeper == true
